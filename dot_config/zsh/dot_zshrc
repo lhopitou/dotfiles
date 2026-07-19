@@ -1,0 +1,47 @@
+zstyle ':completion:*' completer _complete _ignored _correct _approximate
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}'
+zstyle ':completion:*' max-errors 3
+zstyle ':completion:*' menu select=1
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+autoload -Uz compinit
+if [[ ! -d ${XDG_CACHE_HOME}/zsh ]]; then
+  mkdir -p ${XDG_CACHE_HOME}/zsh
+fi;
+if [[ -n ${XDG_CACHE_HOME}/zsh/zcompdump(#qN.mh+24) ]]; then
+	compinit -d "$XDG_CACHE_HOME/zsh/zcompdump";
+else
+	compinit -C -d "$XDG_CACHE_HOME/zsh/zcompdump";
+fi;
+
+if [[ ! -d ${XDG_STATE_HOME}/zsh ]]; then
+  mkdir -p ${XDG_STATE_HOME}/zsh
+fi;
+HISTFILE="$XDG_STATE_HOME"/zsh/history
+HISTSIZE=100000
+SAVEHIST=100000
+setopt append_history share_history hist_ignore_dups hist_ignore_space hist_expire_dups_first hist_find_no_dups
+setopt autocd extendedglob numeric_glob_sort
+unsetopt beep nomatch
+bindkey -e
+
+ZLE_RPROMPT_INDENT=0
+
+# opencode
+export PATH=/home/lhopitou/.opencode/bin:$PATH
+
+# Homebrew
+export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
+
+# Go
+export PATH=$PATH:/usr/local/go/bin
+export PATH="$PATH:$(go env GOPATH)/bin"
+
+source "$ZDOTDIR/plugins.zsh"
+source "$ZDOTDIR/aliases.zsh"
+
+eval "$(zoxide init zsh)"
+eval "$(fnm env --use-on-cd --version-file-strategy=recursive --corepack-enabled --shell zsh)"
+eval "$(fnm completions --shell zsh)"
+eval "$(starship init zsh)"
