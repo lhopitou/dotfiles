@@ -1,4 +1,4 @@
-{{/*
+{{- /*
    run_onchange_install-packages.sh.tmpl
 
    Installs a common CLI toolset using the host's chosen package manager
@@ -34,7 +34,7 @@
      mode on Linux so essentials are never skipped.
    - Language runtimes (node/python/rust) are intentionally NOT managed here;
      use fnm/mise/rustup for those. This script is for CLI apps only.
-*/}}
+*/ -}}
 #!/usr/bin/env bash
 set -euo pipefail
 

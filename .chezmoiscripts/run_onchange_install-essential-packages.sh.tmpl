@@ -1,4 +1,4 @@
-{{/*
+{{- /*
    run_onchange_install-essential-packages.sh.tmpl
 
    Installs system essentials: the native build toolchain (as a distro group)
@@ -22,7 +22,7 @@
    Runs before run_onchange_install-packages (alphabetical ordering), so the
    build toolchain is in place before any CLI app that might need it.
    Re-runs automatically whenever the rendered content changes.
-*/}}
+*/ -}}
 #!/usr/bin/env bash
 set -euo pipefail
 
