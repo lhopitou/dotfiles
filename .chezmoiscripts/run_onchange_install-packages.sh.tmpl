@@ -51,7 +51,7 @@ set -euo pipefail
 {{ $exclude := dict
   "debian" (list)
   "arch"   (list)
-  "fedora" (list)
+  "fedora" (list "zellij")
 }}
 
 {{ if eq .packageManager "brew" }}
