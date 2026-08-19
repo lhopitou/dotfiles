@@ -32,7 +32,14 @@ ZLE_RPROMPT_INDENT=0
 export PATH=/home/lhopitou/.opencode/bin:$PATH
 
 # Homebrew
-export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
+export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew";
+export HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar";
+export HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew";
+fpath[1,0]="/home/linuxbrew/.linuxbrew/share/zsh/site-functions";
+export FPATH;
+export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin";
+[ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
+export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:${INFOPATH:-}";
 
 # Go
 export PATH=$PATH:/usr/local/go/bin

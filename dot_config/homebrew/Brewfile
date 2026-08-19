@@ -1,0 +1,44 @@
+# Homebrew bundle for CLI tools.
+# Used only when data.packageManager == "brew" (macOS always; Linux opt-in).
+#
+# Rules:
+# - CLI apps only. Language runtimes (node/python/rust) are managed by
+#   fnm/mise/rustup, NOT here. This avoids the brew openssl/pyenv ABI pitfall.
+# - On Linux, brew's PATH is appended after system dirs (see the install
+#   script), so do NOT also install these via the distro manager, and do NOT
+#   brew-install bedrock that shadows system tools (git, curl, openssl, bzip2).
+
+# modern coreutils
+brew "ripgrep"
+brew "fd"
+brew "bat"
+brew "eza"
+brew "fzf"
+brew "zoxide"
+brew "git-delta"
+brew "duf"
+brew "dust"
+brew "procs"
+brew "tokei"
+brew "hyperfine"
+
+# shell / editor / terminal
+brew "zsh"
+brew "tmux"
+brew "neovim"
+brew "direnv"
+brew "zellij"
+
+# the long tail (inconsistent or missing across distros)
+brew "starship"
+brew "atuin"
+brew "lazygit"
+
+# dev tooling
+brew "jq"
+brew "httpie"
+brew "shellcheck"
+brew "shfmt"
+brew "gh"
+brew "tldr"
+brew "pass"

@@ -1,0 +1,29 @@
+{{- /*
+   chezmoi config template.
+   Executed on `chezmoi init` / `chezmoi update` to populate ~/.config/chezmoi/chezmoi.toml.
+
+   Prompts (only on a real TTY; non-interactive runs fall back to defaults so
+   CI / scripted `chezmoi init --apply` never blocks):
+     - name, email        : git identity, used by dotfiles templates (git config, commits)
+     - packageManager    : CLI tool installer. macOS always uses brew (no prompt).
+                           Linux defaults to "distro".
+*/ -}}
+{{- $name := "lhopitou" -}}
+{{- $email := "88592614+lhopitou@users.noreply.github.com" -}}
+{{- $pm := "brew" -}}
+{{- if stdinIsATTY -}}
+{{-   $name = promptStringOnce . "name" "name" $name -}}
+{{-   $email = promptStringOnce . "email" "email" $email -}}
+{{- end -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{-   if stdinIsATTY -}}
+{{-     $pm = promptChoiceOnce . "packageManager" "Which package manager for CLI tools?" (list "distro" "brew") "distro" -}}
+{{-   else -}}
+{{-     $pm = "distro" -}}
+{{-   end -}}
+{{- end -}}
+
+[data]
+    name = {{ $name | quote }}
+    email = {{ $email | quote }}
+    packageManager = {{ $pm | quote }}

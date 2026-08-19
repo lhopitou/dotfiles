@@ -1,0 +1,143 @@
+{{/*
+   run_onchange_install-packages.sh.tmpl
+
+   Installs a common CLI toolset using the host's chosen package manager
+   (data.packageManager) and native distro commands (detected at template
+   render time from .chezmoi.osRelease). Re-runs automatically whenever the
+   rendered content changes — i.e. when the user switches packageManager,
+   when the host distro changes, or when the package lists below are edited.
+
+   Design:
+   - $packages   : canonical list of CLI apps (logical names), sourced from
+                   .chezmoidata.toml — edit the list there, not here. System
+                   essentials (build toolchain + core utils) are NOT in this
+                   list; they live in
+                   run_onchange_install-essential-packages.sh.tmpl.
+   - $renames    : per-distro rename map, kept here, for the (few) CLI apps
+                   whose package name differs (fd, shellcheck). Only divergent
+                   entries are listed; anything absent here is installed under
+                   its canonical name.
+   - $exclude    : per-distro list, kept here, of canonical tools that distro
+                   does NOT package. Skipped at install time and printed so the
+                   gap is visible. (Empty today — add entries as you discover
+                   real gaps, e.g. `eza` on older Ubuntu LTS.)
+   To add a tool: append it to `packages` in .chezmoidata.toml, then touch
+   $renames or $exclude below only if a distro needs it.
+
+   Other rules baked in:
+   - brew path is APPENDED after system dirs on Linux (never prepended), so
+     system bedrock (openssl, bzip2, clang, ...) always wins on lookup. The
+     user must not also install the same CLI tools via the distro manager.
+   - distro mode installs modern coreutils from native repos; the build
+     toolchain + core system utils are handled by
+     run_onchange_install-essential-packages.sh.tmpl, which also runs in brew
+     mode on Linux so essentials are never skipped.
+   - Language runtimes (node/python/rust) are intentionally NOT managed here;
+     use fnm/mise/rustup for those. This script is for CLI apps only.
+*/}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ $packages := .packages }}
+
+{{/* canonical -> distro-native name, only where they differ. */}}
+{{ $renames := dict
+  "debian" (dict "fd" "fd-find")
+  "arch"   (dict)
+  "fedora" (dict "fd" "fd-find" "shellcheck" "ShellCheck")
+}}
+
+{{/* canonical tools NOT packaged by a given distro; printed at install time. */}}
+{{ $exclude := dict
+  "debian" (list)
+  "arch"   (list)
+  "fedora" (list)
+}}
+
+{{ if eq .packageManager "brew" }}
+# ---------------------------------------------------------------------------
+# brew  (macOS, or Linux opt-in via the prompt)
+# ---------------------------------------------------------------------------
+if ! command -v brew >/dev/null 2>&1; then
+  echo "brew not found. Install it first, or set packageManager=\"distro\"." >&2
+  exit 1
+fi
+
+# Load shellenv for this non-interactive shell if not already loaded.
+if [ -z "${HOMEBREW_PREFIX:-}" ]; then
+  if command -v /opt/homebrew/bin/brew >/dev/null 2>&1; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif command -v /usr/local/bin/brew >/dev/null 2>&1; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  elif command -v /home/linuxbrew/.linuxbrew/bin/brew >/dev/null 2>&1; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  fi
+fi
+{{ if eq .chezmoi.os "linux" }}
+# Append-only PATH policy on Linux: system bedrock wins, brew CLI tools fill gaps.
+case ":${PATH}:" in
+  *":${HOMEBREW_PREFIX}/bin:"*) : ;;                          # already present
+  *) export PATH="${PATH:+${PATH}:}${HOMEBREW_PREFIX}/bin" ;; # append, never prepend
+esac
+{{ end }}
+brew bundle --file="${HOME}/.config/homebrew/Brewfile"
+{{ else if eq .packageManager "distro" }}
+# ---------------------------------------------------------------------------
+# distro  (template-rendered for this host's family)
+# ---------------------------------------------------------------------------
+{{ $id := .chezmoi.osRelease.id }}
+{{ $like := .chezmoi.osRelease.idLike }}
+{{ $d := "" }}
+{{- if or (eq $id "debian") (eq $id "ubuntu") (eq $id "linuxmint") (eq $id "pop") (eq $like "debian") }}
+{{- $d = "debian" }}
+{{- else if or (eq $id "arch") (eq $id "manjaro") (eq $id "endeavouros") (eq $id "garuda") (eq $id "cachyos") (eq $like "arch") }}
+{{- $d = "arch" }}
+{{- else if or (eq $id "fedora") (eq $id "rhel") (eq $id "centos") (eq $id "rocky") (eq $id "alma") (eq $id "nobara") (eq $like "fedora") }}
+{{- $d = "fedora" }}
+{{- end }}
+{{ if eq $d "" }}
+echo "unsupported distro: id={{ $id }} idLike={{ $like }}" >&2
+exit 1
+{{ else }}
+{{ $r := index $renames $d }}
+{{ $ex := index $exclude $d }}
+{{ $install := list }}
+{{ $skipped := list }}
+{{- range $p := $packages }}
+{{- if has $p $ex }}{{ $skipped = append $skipped $p }}{{ else }}{{ $install = append $install (or (index $r $p) $p) }}{{ end }}
+{{- end }}
+{{- if $skipped }}
+echo "Not packaged on {{ $d }} (skipped): {{ join " " $skipped }}" >&2
+{{- else }}
+echo "All {{ len $packages }} canonical packages available on {{ $d }}."
+{{- end }}
+
+{{ if eq $d "debian" }}
+# --- Debian/Ubuntu --------------------------------------------------------
+sudo -n apt-get update
+sudo -n DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends {{ join " " $install }}
+# apt renames -> standard names in ~/.local/bin (visible to scripts, not just shells)
+mkdir -p "${HOME}/.local/bin"
+ln -sf "$(command -v fdfind)"  "${HOME}/.local/bin/fd"  2>/dev/null || true
+ln -sf "$(command -v batcat)" "${HOME}/.local/bin/bat" 2>/dev/null || true
+{{ else if eq $d "arch" }}
+# --- Arch (and derivatives) ----------------------------------------------
+# paru covers official repos (via pacman under the hood) + AUR fallback.
+# On a fresh box without paru, fall back to plain pacman (AUR-only tools skipped).
+PACKAGES=({{ join " " $install }})
+if command -v paru >/dev/null 2>&1; then
+  paru -S --needed --noconfirm "${PACKAGES[@]}"
+else
+  echo "paru not found; using pacman (AUR-only tools will be skipped)." >&2
+  sudo -n pacman -S --needed --noconfirm "${PACKAGES[@]}"
+  echo "Tip: install paru from the AUR, then re-run 'chezmoi apply' to pick up stragglers." >&2
+fi
+{{ else if eq $d "fedora" }}
+# --- Fedora / RHEL family -------------------------------------------------
+sudo -n dnf install -y {{ join " " $install }}
+{{ end }}
+{{ end }}
+{{ else }}
+echo "unknown packageManager: {{ .packageManager }}" >&2
+exit 1
+{{ end }}

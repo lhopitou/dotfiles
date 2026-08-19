@@ -1,0 +1,25 @@
+# .chezmoidata.toml
+#
+# Source-state data merged into chezmoi's template data on every operation.
+# This file is version-controlled with the dotfiles and read automatically —
+# edit it directly, then run `chezmoi apply`.
+#
+# packages : canonical list of CLI apps to install (logical names). Consumed by
+#            .chezmoiscripts/run_onchange_install-packages.sh.tmpl, which maps
+#            each name to its distro-native package name via an in-script rename
+#            map and skips any that a distro doesn't package.
+#
+#            System essentials (build toolchain + core utils like git, curl,
+#            openssh) are NOT here — they are installed by
+#            run_onchange_install-essential-packages.sh.tmpl with tailor-made
+#            per-distro commands (group installs included), which cannot be
+#            expressed as a flat package list.
+
+packages = [
+  # modern coreutils replacements / search
+  "ripgrep", "fd", "bat", "eza", "fzf", "zoxide", "git-delta", "duf", "hyperfine",
+  # shell / terminal / editor
+  "zsh", "tmux", "direnv", "neovim", "zellij",
+  # dev / data / network tooling
+  "jq", "httpie", "shellcheck", "shfmt", "gh", "tldr", "pass",
+]

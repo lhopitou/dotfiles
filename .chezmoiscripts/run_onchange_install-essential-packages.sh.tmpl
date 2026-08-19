@@ -1,0 +1,66 @@
+{{/*
+   run_onchange_install-essential-packages.sh.tmpl
+
+   Installs system essentials: the native build toolchain (as a distro group)
+   plus core system utilities (git, curl, openssh, gnupg, rsync,
+   ca-certificates, pkg-config).
+
+   Runs on Linux regardless of .packageManager — even in brew mode the build
+   toolchain and core utils come from the distro, because brew does not provide
+   build-essential / base-devel / c-development, and system bedrock (openssl,
+   bzip2, clang, ...) must always win on PATH lookup. This is why brew mode
+   previously skipped them: the build toolchain was buried in the CLI-apps
+   list, which brew mode never touches. Skipped on macOS, where Xcode Command
+   Line Tools + the Brewfile cover these.
+
+   Commands are tailor-made per distro (group installs differ in syntax and
+   naming: `apt install build-essential`, `pacman -S base-devel`,
+   `dnf group install c-development`), so there is no shared package list
+   here; the config-driven CLI-apps list lives in .chezmoidata.toml /
+   run_onchange_install-packages.sh.tmpl.
+
+   Runs before run_onchange_install-packages (alphabetical ordering), so the
+   build toolchain is in place before any CLI app that might need it.
+   Re-runs automatically whenever the rendered content changes.
+*/}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ if eq .chezmoi.os "darwin" }}
+# macOS: Xcode Command Line Tools + the Brewfile cover system essentials.
+{{ else if eq .chezmoi.os "linux" }}
+{{ $id := .chezmoi.osRelease.id }}
+{{ $like := .chezmoi.osRelease.idLike }}
+{{ if or (eq $id "debian") (eq $id "ubuntu") (eq $id "linuxmint") (eq $id "pop") (eq $like "debian") }}
+# --- Debian/Ubuntu --------------------------------------------------------
+sudo -n apt-get update
+sudo -n DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  build-essential pkg-config \
+  git curl wget openssh-client gnupg rsync ca-certificates
+{{ else if or (eq $id "arch") (eq $id "manjaro") (eq $id "endeavouros") (eq $id "garuda") (eq $id "cachyos") (eq $like "arch") }}
+# --- Arch (and derivatives) ----------------------------------------------
+# base-devel is a package group; pkgconf provides pkg-config. paru covers
+# official repos (via pacman) + AUR fallback; fall back to plain pacman.
+_packages=(base-devel pkgconf git curl wget openssh gnupg rsync ca-certificates)
+if command -v paru >/dev/null 2>&1; then
+  paru -S --needed --noconfirm "${_packages[@]}"
+else
+  echo "paru not found; using pacman." >&2
+  sudo -n pacman -S --needed --noconfirm "${_packages[@]}"
+fi
+{{ else if or (eq $id "fedora") (eq $id "rhel") (eq $id "centos") (eq $id "rocky") (eq $id "alma") (eq $id "nobara") (eq $like "fedora") }}
+# --- Fedora / RHEL family -------------------------------------------------
+# c-development is a dnf group ("C Development Tools and Libraries"); it pulls
+# in gcc, make, etc. pkg-config ships as the pkgconf-pkg-config package.
+sudo -n dnf group install -y c-development
+sudo -n dnf install -y \
+  pkgconf-pkg-config \
+  git curl wget openssh-clients gnupg2 rsync ca-certificates
+{{ else }}
+echo "unsupported distro: id={{ $id }} idLike={{ $like }}" >&2
+exit 1
+{{ end }}
+{{ else }}
+echo "unsupported os: {{ .chezmoi.os }}" >&2
+exit 1
+{{ end }}
