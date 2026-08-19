@@ -85,8 +85,8 @@ brew bundle --file="${HOME}/.config/homebrew/Brewfile"
 # ---------------------------------------------------------------------------
 # distro  (template-rendered for this host's family)
 # ---------------------------------------------------------------------------
-{{ $id := .chezmoi.osRelease.id }}
-{{ $like := .chezmoi.osRelease.idLike }}
+{{ $id := or (index .chezmoi.osRelease "id") "" }}
+{{ $like := or (index .chezmoi.osRelease "idLike") "" }}
 {{ $d := "" }}
 {{- if or (eq $id "debian") (eq $id "ubuntu") (eq $id "linuxmint") (eq $id "pop") (eq $like "debian") }}
 {{- $d = "debian" }}

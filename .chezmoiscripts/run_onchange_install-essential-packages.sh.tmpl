@@ -29,8 +29,8 @@ set -euo pipefail
 {{ if eq .chezmoi.os "darwin" }}
 # macOS: Xcode Command Line Tools + the Brewfile cover system essentials.
 {{ else if eq .chezmoi.os "linux" }}
-{{ $id := .chezmoi.osRelease.id }}
-{{ $like := .chezmoi.osRelease.idLike }}
+{{ $id := or (index .chezmoi.osRelease "id") "" }}
+{{ $like := or (index .chezmoi.osRelease "idLike") "" }}
 {{ if or (eq $id "debian") (eq $id "ubuntu") (eq $id "linuxmint") (eq $id "pop") (eq $like "debian") }}
 # --- Debian/Ubuntu --------------------------------------------------------
 sudo -n apt-get update
