@@ -171,6 +171,8 @@ keybinds clear-defaults=true {
         bind "Alt o" { MoveTab "right"; }
         bind "Alt p" { TogglePaneInGroup; }
         bind "Alt x" { CloseFocus; }
+        bind "Alt r" { SwitchToMode "renametab"; TabNameInput 0; }
+        bind "Alt z" { ToggleFocusFullscreen; SwitchToMode "locked"; }
         bind "Alt Shift n" { NewTab; }
         bind "Alt Shift p" { ToggleGroupMarking; }
     }

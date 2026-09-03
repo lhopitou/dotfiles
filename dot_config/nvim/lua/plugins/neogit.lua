@@ -20,11 +20,46 @@ return {
     keys = {
       { "<leader>gg", "<cmd>Neogit<cr>", desc = "Show Neogit UI" },
     },
+    opts = {
+      graph_style = "unicode",
+    },
   },
   {
     "sindrets/diffview.nvim",
-    keys = {
-      { "q", "<cmd>DiffviewClose<cr>" },
+    lazy = true,
+    opts = {
+      view = {
+        default = {
+          disable_diagnostics = true,
+        },
+        merge_tool = {
+          layout = "diff3_mixed",
+          disable_diagnostics = true,
+        },
+        file_history_panel = {
+          disable_diagnostics = true,
+        },
+      },
+      file_panel = {
+        listing_style = "list",
+      },
+      keymaps = {
+        view = {
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
+        },
+        file_panel = {
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
+        },
+        file_history_panel = {
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
+        },
+      },
+    },
+  },
+  {
+    "lewis6991/gitsigns.nvim",
+    opts = {
+      current_line_blame = true,
     },
   },
 }
