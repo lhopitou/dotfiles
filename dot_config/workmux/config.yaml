@@ -1,0 +1,15 @@
+nerdfont: true
+window_placement: rightmost
+
+agent: pi
+agents:
+  pi-flash:
+    type: pi
+    command: pi
+    args:
+      - --model
+      - openrouter/~z-ai/glm-flash-latest:high
+
+panes:
+  - command: <agent>
+  - split: horizontal
