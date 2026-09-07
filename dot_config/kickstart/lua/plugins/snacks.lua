@@ -32,11 +32,23 @@ return {
         { section = 'startup' },
       },
     },
-    -- indent = { enabled = true },
+    indent = {
+      enabled = true,
+      indent = {
+        char = '╎',
+      },
+      scope = {
+        char = '│',
+      },
+      animate = {
+        duration = {
+          total = 1000,
+        },
+      },
+    },
     input = { enabled = true },
     notifier = { enabled = true },
     quickfile = { enabled = true },
     scope = { enabled = true },
-    words = { enabled = true },
   },
 }

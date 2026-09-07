@@ -119,62 +119,181 @@ return {
       })
     end,
   },
-  -- {
-  --   'nvim-mini/mini.clue',
-  --   opts = {
-  --     triggers = {
-  --       -- Leader triggers
-  --       { mode = { 'n', 'x' }, keys = '<Leader>' },
-  --
-  --       -- `[` and `]` keys
-  --       { mode = 'n', keys = '[' },
-  --       { mode = 'n', keys = ']' },
-  --
-  --       -- Built-in completion
-  --       { mode = 'i', keys = '<C-x>' },
-  --
-  --       -- `g` key
-  --       { mode = { 'n', 'x' }, keys = 'g' },
-  --
-  --       -- Marks
-  --       { mode = { 'n', 'x' }, keys = "'" },
-  --       { mode = { 'n', 'x' }, keys = '`' },
-  --
-  --       -- Registers
-  --       { mode = { 'n', 'x' }, keys = '"' },
-  --       { mode = { 'i', 'c' }, keys = '<C-r>' },
-  --
-  --       -- Window commands
-  --       { mode = 'n', keys = '<C-w>' },
-  --
-  --       -- `z` key
-  --       { mode = { 'n', 'x' }, keys = 'z' },
-  --     },
-  --   },
-  --   config = function(_, opts)
-  --     local MiniClue = require 'mini.clue'
-  --     opts.clues = {
-  --       { mode = 'n', keys = '<leader>b', desc = '+buffer' },
-  --       { mode = 'n', keys = '<leader>c', desc = '+code' },
-  --       { mode = 'n', keys = '<leader>f', desc = '+find' },
-  --       { mode = 'n', keys = '<leader>g', desc = '+git' },
-  --       { mode = 'n', keys = '<leader>l', desc = '+lsp' },
-  --       { mode = 'n', keys = '<leader>q', desc = '+quickfix' },
-  --       { mode = 'n', keys = '<leader>s', desc = '+search' },
-  --       { mode = 'n', keys = '<leader>w', desc = '+window' },
-  --       { mode = 'n', keys = '<leader>z', desc = '+quit' },
-  --       -- Enhance this by adding descriptions for <Leader> mapping groups
-  --       MiniClue.gen_clues.square_brackets(),
-  --       MiniClue.gen_clues.builtin_completion(),
-  --       MiniClue.gen_clues.g(),
-  --       MiniClue.gen_clues.marks(),
-  --       MiniClue.gen_clues.registers(),
-  --       MiniClue.gen_clues.windows(),
-  --       MiniClue.gen_clues.z(),
-  --     }
-  --     MiniClue.setup(opts)
-  --   end,
-  -- },
+  {
+    'nvim-mini/mini.clue',
+    opts = function()
+      local MiniClue = require 'mini.clue'
+
+      -- Built-in text objects (`iw`, `a(`, ...) are not keymaps at all, and
+      -- mini.ai only maps the `a`/`i` prefixes (as expr mappings) and resolves
+      -- the object key itself, so there are no `if`/`af`/... mappings either.
+      -- mini.clue can only show real mappings and explicitly registered
+      -- clues, so text objects need manual clues
+      -- (:h mini-clue -> "Clues without mappings").
+      local textobjects = {
+        { key = 'w', desc = 'word' },
+        { key = 'W', desc = 'WORD' },
+        { key = 'p', desc = 'paragraph' },
+        { key = 's', desc = 'sentence' },
+        { key = 'b', desc = 'brackets (), [], {}' }, -- mini.ai alias
+        { key = '(', desc = '(...) block' },
+        { key = ')', desc = '(...) block' },
+        { key = '[', desc = '[...] block' },
+        { key = ']', desc = '[...] block' },
+        { key = '{', desc = '{...} block' },
+        { key = '}', desc = '{...} block' },
+        { key = '<', desc = '<...> block' },
+        { key = '>', desc = '<...> block' },
+        { key = 'q', desc = 'quotes " ' .. "'" .. ' `' }, -- mini.ai alias
+        { key = '"', desc = '"..." string' },
+        { key = "'", desc = "'...' string" },
+        { key = '`', desc = '`...` string' },
+        { key = 'a', desc = 'argument' }, -- mini.ai
+        { key = '_', desc = 'trailing whitespace' }, -- mini.ai "default" object
+        { key = '?', desc = 'user prompt' }, -- mini.ai
+        -- custom mini.ai textobjects (see mini.ai spec above)
+        { key = 'f', desc = 'function (treesitter)' },
+        { key = 'c', desc = 'class (treesitter)' },
+        { key = 'r', desc = 'return block (treesitter)' },
+        { key = 't', desc = 'JSX element' },
+      }
+
+      -- nvim-surround delimiter keys it accepts as `cs`/`ds` targets (its
+      -- `surrounds` + `aliases`); these are read via getchar()/g@, so again
+      -- there are no mappings for mini.clue to discover.
+      local surround_pairs = {
+        { key = '(', desc = '(...)' },
+        { key = ')', desc = '(...)' },
+        { key = '[', desc = '[...]' },
+        { key = ']', desc = '[...]' },
+        { key = '{', desc = '{...}' },
+        { key = '}', desc = '{...}' },
+        { key = '<', desc = '<...>' },
+        { key = '>', desc = '<...>' },
+        { key = '"', desc = '"..."' },
+        { key = "'", desc = "'...'" },
+        { key = '`', desc = '`...`' },
+        { key = 'b', desc = 'alias )' },
+        { key = 'B', desc = 'alias }' },
+        { key = 'r', desc = 'alias ]' },
+        { key = 'a', desc = 'alias >' },
+        { key = 'q', desc = 'alias quotes' },
+        { key = 's', desc = 'alias any pair' },
+        { key = 't', desc = 'HTML/XML tag' },
+        { key = 'T', desc = 'HTML/XML tag (inner)' },
+        { key = 'f', desc = 'function call' },
+      }
+
+      local clues = {
+        -- Enhance this by adding descriptions for <Leader> mapping groups
+        MiniClue.gen_clues.square_brackets(),
+        MiniClue.gen_clues.builtin_completion(),
+        MiniClue.gen_clues.g(),
+        MiniClue.gen_clues.marks(),
+        MiniClue.gen_clues.registers(),
+        MiniClue.gen_clues.windows(),
+        MiniClue.gen_clues.z(),
+        { mode = 'n', keys = '<leader>b', desc = '+buffer' },
+        { mode = 'n', keys = '<leader>c', desc = '+code' },
+        { mode = 'n', keys = '<leader>f', desc = '+find' },
+        { mode = 'n', keys = '<leader>g', desc = '+git' },
+        { mode = 'n', keys = '<leader>l', desc = '+lsp' },
+        { mode = 'n', keys = '<leader>q', desc = '+quickfix' },
+        { mode = 'n', keys = '<leader>s', desc = '+search' },
+        { mode = 'n', keys = '<leader>w', desc = '+window' },
+        { mode = 'n', keys = '<leader>z', desc = '+quit' },
+      }
+
+      -- Text objects in Visual and Operator-pending mode. The `o` clues also
+      -- apply after `ys`/`yS` from nvim-surround, which read their motion via
+      -- the `g@` operator (Operator-pending).
+      for _, mode in ipairs { 'o', 'x' } do
+        for _, prefix in ipairs { 'i', 'a' } do
+          for _, obj in ipairs(textobjects) do
+            clues[#clues + 1] = {
+              mode = mode,
+              keys = prefix .. obj.key,
+              desc = (prefix == 'i' and 'Inside ' or 'Around ') .. obj.desc,
+            }
+          end
+        end
+      end
+
+      -- nvim-surround `ys{motion}{char}` targets. Plain motions (`ys$`, `ysj`,
+      -- ...) still work: keys not listed here execute immediately.
+      clues[#clues + 1] = { mode = 'n', keys = 'ysi', desc = '+inside text object' }
+      clues[#clues + 1] = { mode = 'n', keys = 'ysa', desc = '+around text object' }
+      for _, prefix in ipairs { 'i', 'a' } do
+        for _, obj in ipairs(textobjects) do
+          clues[#clues + 1] = {
+            mode = 'n',
+            keys = 'ys' .. prefix .. obj.key,
+            desc = 'Surround ' .. (prefix == 'i' and 'inside ' or 'around ') .. obj.desc,
+          }
+        end
+      end
+
+      -- nvim-surround `ds{char}` / `cs{char}` targets. (For `cs` the
+      -- replacement char is then requested via input() prompt, which can't be
+      -- hinted by mini.clue.)
+      for _, pair in ipairs(surround_pairs) do
+        clues[#clues + 1] = { mode = 'n', keys = 'ds' .. pair.key, desc = 'Delete surrounding ' .. pair.desc }
+        clues[#clues + 1] = { mode = 'n', keys = 'cs' .. pair.key, desc = 'Change surrounding ' .. pair.desc }
+        clues[#clues + 1] = { mode = 'n', keys = 'yss' .. pair.key, desc = 'Change surrounding ' .. pair.desc }
+        clues[#clues + 1] = { mode = 'x', keys = 'S' .. pair.key, desc = 'Add surrounding ' .. pair.desc }
+      end
+
+      return {
+        triggers = {
+          -- Leader triggers
+          { mode = { 'n', 'x' }, keys = '<Leader>' },
+
+          -- `[` and `]` keys
+          { mode = 'n', keys = '[' },
+          { mode = 'n', keys = ']' },
+
+          -- Built-in completion
+          { mode = 'i', keys = '<C-x>' },
+
+          -- `g` key
+          { mode = { 'n', 'x' }, keys = 'g' },
+
+          -- Marks
+          { mode = { 'n', 'x' }, keys = "'" },
+          { mode = { 'n', 'x' }, keys = '`' },
+
+          -- Registers
+          { mode = { 'n', 'x' }, keys = '"' },
+          { mode = { 'i', 'c' }, keys = '<C-r>' },
+
+          -- Window commands
+          { mode = 'n', keys = '<C-w>' },
+
+          -- `z` key
+          { mode = { 'n', 'x' }, keys = 'z' },
+
+          -- Textobjects. NOTE: only the *prefixes* are triggers; the actual
+          -- object keys (`iw`, `af`, `it`, ...) are hinted via explicit clues
+          -- built from `textobjects` above.
+          { mode = 'x', keys = 'a' },
+          { mode = 'x', keys = 'i' },
+          { mode = 'o', keys = 'a' },
+          { mode = 'o', keys = 'i' },
+
+          -- nvim-surround. `yss`/`yS`/`ySS` are real mappings and show up
+          -- automatically; the sub-keys are covered by the clues above.
+          { mode = 'n', keys = 'ys' },
+          { mode = 'n', keys = 'cs' },
+          { mode = 'n', keys = 'ds' },
+          { mode = 'x', keys = 'S' },
+        },
+        clues = clues,
+        window = {
+          delay = 500,
+        },
+      }
+    end,
+  },
   {
     'nvim-mini/mini.icons',
     version = '*',
@@ -184,38 +303,6 @@ return {
         require('mini.icons').mock_nvim_web_devicons()
         return package.loaded['nvim-web-devicons']
       end
-    end,
-  },
-  {
-    'nvim-mini/mini.indentscope',
-    event = 'LazyFile',
-    opts = {
-      symbol = '⁚',
-      options = {
-        try_as_border = true,
-      },
-    },
-    init = function()
-      vim.api.nvim_create_autocmd('FileType', {
-        pattern = {
-          'fzf',
-          'help',
-          'lazy',
-          'mason',
-          'snacks_dashboard',
-        },
-        callback = function() vim.b.miniindentscope_disable = true end,
-      })
-
-      vim.api.nvim_create_autocmd('User', {
-        pattern = 'SnacksDashboardOpened',
-        callback = function(data) vim.b[data.buf].miniindentscope_disable = true end,
-      })
-    end,
-    config = function(_, opts)
-      require('mini.indentscope').setup(opts)
-      -- Change color here
-      -- vim.api.nvim_set_hl(0, 'MiniIndentscopeSymbol', { link = 'Comment' })
     end,
   },
   {

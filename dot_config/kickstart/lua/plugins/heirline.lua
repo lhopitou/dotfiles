@@ -186,18 +186,18 @@ local Opts = function()
   local FileName = {
     init = function(self)
       self.root_dir = get_root_dir()
-      self.filename = vim.api.nvim_buf_get_name(0)
-      local icon, hl = MiniIcons.get('file', self.filename)
-      self.icon = icon
-      self.bg = utils.get_highlight(tostring(hl)).fg
+      -- self.filename = vim.api.nvim_buf_get_name(0)
+      -- local icon, hl = MiniIcons.get('file', self.filename)
+      -- self.icon = icon
+      -- self.file_hl = utils.get_highlight(tostring(hl)).fg
       self.modified = vim.bo.modified
       self.readonly = not vim.bo.modifiable or vim.bo.readonly
       if self.modified then
-        self.pill = { bg = bit.bxor(self.bg, 0xFFFFFF), fg = 'fg' }
+        self.pill = { bg = bit.bxor(self.file_hl, 0xFFFFFF), fg = 'fg' }
       elseif self.readonly then
         self.pill = { bg = 'cmt', fg = 'fg' }
       else
-        self.pill = { bg = self.bg, fg = 'bg' }
+        self.pill = { bg = self.file_hl, fg = 'bg' }
       end
     end,
     { DelimiterL, hl = function(self) return { fg = self.pill.bg } end },
@@ -209,7 +209,7 @@ local Opts = function()
       { Space, condition = function(self) return self.modified or self.readonly end },
     },
     {
-      hl = function(self) return { bg = self.bg, fg = 'bg' } end,
+      hl = function(self) return { bg = self.file_hl, fg = 'bg' } end,
       Space,
       {
         provider = function(self)
@@ -218,7 +218,7 @@ local Opts = function()
         end,
       },
     },
-    { DelimiterR, hl = function(self) return { fg = self.bg } end },
+    { DelimiterR, hl = function(self) return { fg = self.file_hl } end },
     update = {
       'BufEnter',
       'BufFilePost',
@@ -230,12 +230,22 @@ local Opts = function()
     },
   }
 
+  local FileType = {
+    update = { 'FileType' },
+    utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
+      hl = { fg = 'bg' },
+      { provider = function() return vim.bo.filetype end },
+    }),
+  }
+
   local LSPActive = {
     condition = conditions.lsp_attached,
     update = { 'LspAttach', 'LspDetach' },
-    utils.surround({ DelimiterL.provider, DelimiterR.provider }, 'str', {
+    utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
       hl = { fg = 'bg' },
-      { provider = ' ' },
+      -- { provider = ' ' },
+      { provider = '' },
+      Space,
       {
         provider = function()
           local names = {}
@@ -260,8 +270,8 @@ local Opts = function()
     end,
     {
       condition = function(self) return #self.formatters > 0 end,
-      utils.surround({ DelimiterL.provider, DelimiterR.provider }, 'str', {
-        provider = function(self) return #self.formatters > 0 and '󰉁 ' .. table.concat(self.formatters, '->') end or '',
+      utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
+        provider = function(self) return #self.formatters > 0 and ' ' .. table.concat(self.formatters, '->') end or '',
         hl = { fg = 'bg' },
       }),
     },
@@ -411,6 +421,12 @@ local Opts = function()
   }
 
   local StatusLine = {
+    init = function(self)
+      self.filename = vim.api.nvim_buf_get_name(0)
+      local icon, hl = MiniIcons.get('file', self.filename)
+      self.icon = icon
+      self.file_hl = utils.get_highlight(tostring(hl)).fg
+    end,
     hl = { bg = 'bg', fg = 'fg' },
     Space,
     ViMode,
@@ -425,13 +441,13 @@ local Opts = function()
     Space,
     Navic,
     Align,
-    LastYanked,
-    Space,
     LastSearched,
     Space,
     LSPActive,
     Space,
     FormatterActive,
+    Space,
+    FileType,
     Space,
     Ruler,
   }
