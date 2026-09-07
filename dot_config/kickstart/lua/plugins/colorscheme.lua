@@ -12,6 +12,11 @@ return {
           },
         },
       },
+      groups = {
+        all = {
+          NavicIconsArray = { link = 'NavicIconsObject' },
+        },
+      },
     },
   },
   {

@@ -12,3 +12,5 @@ alias cd='z'
 alias nvm='fnm'
 alias zj='zellij'
 alias c='clear'
+
+alias kickstart='NVIM_APPNAME=kickstart nvim'

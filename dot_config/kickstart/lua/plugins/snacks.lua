@@ -32,7 +32,7 @@ return {
         { section = 'startup' },
       },
     },
-    indent = { enabled = true },
+    -- indent = { enabled = true },
     input = { enabled = true },
     notifier = { enabled = true },
     quickfile = { enabled = true },

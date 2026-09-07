@@ -54,7 +54,8 @@ return {
   {
     'dlyongemallo/diffview-plus.nvim',
     keys = {
-      { '<leader>gd', '<cmd>DiffviewOpen<cr> -- %', desc = 'Diff' },
+      { '<leader>gd', '<cmd>DiffviewOpen -uno -- %<cr>', desc = 'Diff current file' },
+      { '<leader>gD', '<cmd>DiffviewOpen<cr>', desc = 'Diff directory' },
       { '<leader>gh', '<cmd>DiffviewFileHistory %<cr>', desc = 'View file commit history' },
     },
     opts = {

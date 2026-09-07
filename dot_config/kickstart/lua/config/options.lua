@@ -151,6 +151,8 @@ vim.o.numberwidth = 3
 -- %l is the line number, %s the sign column (gitsigns/diagnostics).
 vim.o.statuscolumn = '%l %s'
 
+vim.o.laststatus = 3
+
 -- Enable wrapping of long lines and linebreak on words
 vim.o.wrap = false
 vim.o.linebreak = true

@@ -34,5 +34,17 @@ return {
     'kylechui/nvim-surround',
     event = 'VeryLazy',
   },
+  {
+    'wansmer/treesj',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    keys = {
+      { '<leader>ts', '<cmd>TSJSplit<cr>', desc = 'Split tree' },
+      { '<leader>tj', '<cmd>TSJJoin<cr>', desc = 'Join tree' },
+      { '<leader>tt', '<cmd>TSJToggle<cr>', desc = 'Toggle tree' },
+    },
+    opts = {
+      use_default_keymaps = false,
+    },
+  },
 }
 -- vim: ts=2 sts=2 sw=2 et

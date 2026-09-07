@@ -323,40 +323,29 @@ local Opts = function()
     end,
   }
 
+  local LastSearched = {
+    init = function(self)
+      local content = vim.fn.getreginfo('/').regcontents
+      if not content or #content == 0 then
+        self.text = nil
+        return
+      end
+      self.text = content[1]:gsub('%%', '%%%%')
+    end,
+    {
+      condition = function(self) return self.text ~= nil and self.text ~= '' end,
+      hl = { fg = 'bg' },
+      utils.surround({ DelimiterL.provider, DelimiterR.provider }, utils.get_highlight('IncSearch').bg, {
+        provider = function(self) return ' ' .. self.text end,
+      }),
+    },
+  }
+
   -- Full nerd (with icon colors and clickable elements)!
   -- works in multi window, but does not support flexible components (yet ...)
   local Navic = {
     condition = function() return require('nvim-navic').is_available() end,
     static = {
-      -- create a type highlight map
-      type_hl = {
-        File = 'Directory',
-        Module = '@include',
-        Namespace = '@namespace',
-        Package = '@include',
-        Class = '@structure',
-        Method = '@method',
-        Property = '@property',
-        Field = '@field',
-        Constructor = '@constructor',
-        Enum = '@field',
-        Interface = '@type',
-        Function = '@function',
-        Variable = '@variable',
-        Constant = '@constant',
-        String = '@string',
-        Number = '@number',
-        Boolean = '@boolean',
-        Array = '@field',
-        Object = '@type',
-        Key = '@keyword',
-        Null = '@comment',
-        EnumMember = '@field',
-        Struct = '@structure',
-        Event = '@keyword',
-        Operator = '@operator',
-        TypeParameter = '@type',
-      },
       -- bit operation dark magic, see below...
       enc = function(line, col, winnr) return bit.bor(bit.lshift(line, 16), bit.lshift(col, 6), winnr) end,
       -- line: 16 bit (65535); col: 10 bit (1023); winnr: 6 bit (63)
@@ -366,7 +355,11 @@ local Opts = function()
         local winnr = bit.band(c, 63)
         return line, col, winnr
       end,
-      get_hl = function(type_hl) return utils.get_highlight(type_hl).fg end,
+      get_hl = function(type, i)
+        local hl = utils.get_highlight('NavicIcons' .. type).fg
+        if i % 2 == 0 then hl = 0xFFFFFF - hl end
+        return hl
+      end,
     },
     init = function(self)
       local data = require('nvim-navic').get_data() or {}
@@ -376,7 +369,7 @@ local Opts = function()
         -- encode line and column numbers into a single integer
         local pos = self.enc(d.scope.start.line, d.scope.start.character, self.winnr)
         local child = {
-          hl = { bg = self.get_hl(self.type_hl[d.type]), fg = 'bg' },
+          hl = { bg = self.get_hl(d.type, i), fg = i % 2 == 0 and 'fg' or 'bg' },
           {
             provider = d.icon,
           },
@@ -396,8 +389,8 @@ local Opts = function()
           },
         }
 
-        local curr_hl = self.get_hl(self.type_hl[d.type])
-        local next_hl = i < #data and self.get_hl(self.type_hl[data[i + 1].type]) or nil
+        local curr_hl = self.get_hl(d.type, i)
+        local next_hl = i < #data and self.get_hl(data[i + 1].type, i + 1) or nil
         if i == 1 then table.insert(children, {
           { DelimiterL, hl = { fg = curr_hl } },
         }) end
@@ -433,6 +426,8 @@ local Opts = function()
     Navic,
     Align,
     LastYanked,
+    Space,
+    LastSearched,
     Space,
     LSPActive,
     Space,

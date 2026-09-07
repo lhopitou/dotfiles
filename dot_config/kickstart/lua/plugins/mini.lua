@@ -187,6 +187,38 @@ return {
     end,
   },
   {
+    'nvim-mini/mini.indentscope',
+    event = 'LazyFile',
+    opts = {
+      symbol = '⁚',
+      options = {
+        try_as_border = true,
+      },
+    },
+    init = function()
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = {
+          'fzf',
+          'help',
+          'lazy',
+          'mason',
+          'snacks_dashboard',
+        },
+        callback = function() vim.b.miniindentscope_disable = true end,
+      })
+
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'SnacksDashboardOpened',
+        callback = function(data) vim.b[data.buf].miniindentscope_disable = true end,
+      })
+    end,
+    config = function(_, opts)
+      require('mini.indentscope').setup(opts)
+      -- Change color here
+      -- vim.api.nvim_set_hl(0, 'MiniIndentscopeSymbol', { link = 'Comment' })
+    end,
+  },
+  {
     'nvim-mini/mini.pairs',
     event = 'VeryLazy',
     opts = {
