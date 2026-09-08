@@ -42,8 +42,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
     map('n', 'gr', '<cmd>FzfLua lsp_references      jump1=true ignore_current_line=true<cr>', { desc = 'References', nowait = true })
     map('n', 'gI', '<cmd>FzfLua lsp_implementations jump1=true ignore_current_line=true<cr>', { desc = 'Goto Implementation' })
     map('n', 'gK', '<cmd>FzfLua lsp_typedefs        jump1=true ignore_current_line=true<cr>', { desc = 'Goto Type Definition' })
-    map({ 'n', 'x' }, '<leader>ca', function() vim.lsp.buf.code_action() end, { desc = 'Code action' })
-    map({ 'n', 'x' }, '<leader>cr', function() vim.lsp.buf.rename() end, { desc = 'Rename' })
+    map({ 'n', 'x' }, '<leader>la', function() vim.lsp.buf.code_action() end, { desc = 'Code action' })
+    map({ 'n', 'x' }, '<leader>lr', function() vim.lsp.buf.rename() end, { desc = 'Rename' })
 
     -- nvim-navic: the first documentSymbol response arrives asynchronously, and
     -- navic only computes its breadcrumb context on cursor events (CursorMoved /

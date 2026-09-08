@@ -11,9 +11,7 @@ return {
       'mason-org/mason.nvim',
       'SmiteshP/nvim-navic',
     },
-    opts = { automatic_enable = {
-      exclude = { 'stylua' },
-    } },
+    opts = { automatic_enable = {} },
   },
   {
     'mason-org/mason.nvim',
@@ -22,7 +20,7 @@ return {
     -- list opts append across specs, so `lua/plugins/lang/*.lua` can add tools
     opts_extend = { 'ensure_installed' },
     opts = {
-      ensure_installed = { 'lua-language-server', 'stylua' },
+      ensure_installed = {},
     },
     config = function(_, opts)
       require('mason').setup(opts)

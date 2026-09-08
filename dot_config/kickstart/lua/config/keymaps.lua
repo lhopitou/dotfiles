@@ -21,6 +21,8 @@ map({ 'n', 'v' }, 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true })
 map({ 'n', 'v' }, 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true })
 map({ 'n', 'x' }, '<c-u>', function() animate_scroll('<c-u>', 'zz') end)
 map({ 'n', 'x' }, '<c-d>', function() animate_scroll('<c-d>', 'zz') end)
+map('x', 'J', "<cmd>m '>+1<CR>gv=gv", { desc = 'Move selection down' })
+map('x', 'K', "<cmd>m '<-2<CR>gv=gv", { desc = 'Move selection up' })
 
 map({ 'n', 'x' }, 'n', function()
   local keys = vim.v.searchforward == 1 and 'n' or 'N'

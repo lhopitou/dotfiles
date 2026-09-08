@@ -121,6 +121,7 @@ return {
   },
   {
     'nvim-mini/mini.clue',
+    event = 'VeryLazy',
     opts = function()
       local MiniClue = require 'mini.clue'
 

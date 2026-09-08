@@ -231,10 +231,10 @@ local Opts = function()
   }
 
   local FileType = {
-    update = { 'FileType' },
+    update = { 'BufEnter' },
     utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
       hl = { fg = 'bg' },
-      { provider = function() return vim.bo.filetype end },
+      { provider = function() return ' ' .. string.upper(vim.bo.filetype) end },
     }),
   }
 
@@ -262,11 +262,12 @@ local Opts = function()
     update = { 'BufEnter', 'BufWritePost' },
     init = function(self)
       local conform = require 'conform'
-      local formatters = conform.list_formatters_to_run(0)
+      local formatters, lsp = conform.list_formatters_to_run(0)
       self.formatters = {}
       for _, formatter in ipairs(formatters) do
         table.insert(self.formatters, formatter.name)
       end
+      if #self.formatters == 0 and lsp then table.insert(self.formatters, 'LSP') end
     end,
     {
       condition = function(self) return #self.formatters > 0 end,
