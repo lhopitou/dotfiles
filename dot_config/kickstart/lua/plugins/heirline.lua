@@ -33,24 +33,6 @@ local Opts = function()
     provider = '',
   }
 
-  local OSIcon = {
-    init = function(self)
-      local get_os = function()
-        local f = io.open('/etc/os-release', 'r')
-        if not f then return 'Unknown' end
-        local content = f:read '*a'
-        f:close()
-        for line in content:gmatch '[^\r\n]+' do
-          if line:match '^ID=' then return line:gsub('ID=', ''):gsub('"', '') end
-        end
-        return 'Unknown'
-      end
-      self.os = get_os()
-      self.icon, self.hl = require('mini.icons').get('os', self.os)
-    end,
-    provider = function(self) return self.icon end,
-  }
-
   local ViMode = {
     -- get vim current mode, this information will be required by the provider
     -- and the highlight functions, so we compute it only once per component
@@ -101,6 +83,7 @@ local Opts = function()
         ['!'] = 'Shell',
         t = 'Terminal',
       },
+
       mode_colors = {
         n = 'normal',
         i = 'insert',
@@ -168,7 +151,7 @@ local Opts = function()
       self.root_dir = get_root_dir()
       self.dir_hl = utils.get_highlight('@function.builtin').fg
     end,
-    hl = { fg = 'bg' },
+    hl = { fg = 'bg', bold = true },
     utils.surround(
       { DelimiterL.provider, DelimiterR.provider },
       function(self) return self.dir_hl end,
@@ -186,10 +169,6 @@ local Opts = function()
   local FileName = {
     init = function(self)
       self.root_dir = get_root_dir()
-      -- self.filename = vim.api.nvim_buf_get_name(0)
-      -- local icon, hl = MiniIcons.get('file', self.filename)
-      -- self.icon = icon
-      -- self.file_hl = utils.get_highlight(tostring(hl)).fg
       self.modified = vim.bo.modified
       self.readonly = not vim.bo.modifiable or vim.bo.readonly
       if self.modified then
@@ -231,10 +210,10 @@ local Opts = function()
   }
 
   local FileType = {
-    update = { 'BufEnter' },
+    update = { 'BufEnter', 'FileType' },
     init = function(self)
-      self.ft = vim.bo.filetype
-      self.ft_icon = require('mini.icons').get('filetype', self.ft)
+      self.ft = vim.bo.filetype ~= '' and vim.bo.filetype or 'new'
+      self.ft_icon = MiniIcons.get('filetype', self.ft)
     end,
     utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
       hl = { fg = 'bg' },
@@ -244,11 +223,33 @@ local Opts = function()
 
   local LSPActive = {
     condition = conditions.lsp_attached,
-    update = { 'LspAttach', 'LspDetach' },
+    static = {
+      lsp_work_by_client_id = {},
+      loading = false,
+    },
+    update = {
+      'LspAttach',
+      'LspDetach',
+      'LspProgress',
+      callback = function(component, args)
+        if args.event ~= 'LspProgress' then
+          vim.schedule(function() vim.cmd 'redrawstatus' end)
+          return
+        end
+
+        local kind = args.data.params.value.kind
+        local client_id = args.data.client_id
+        local work = component.lsp_work_by_client_id[client_id] or 0
+        local work_change = kind == 'begin' and 1 or (kind == 'end' and -1 or 0)
+        local was_loading = component.loading
+        component.lsp_work_by_client_id[client_id] = math.max(work + work_change, 0)
+        component.loading = vim.iter(component.lsp_work_by_client_id):any(function(v) return v > 0 end)
+        if component.loading ~= was_loading then vim.schedule(function() vim.cmd 'redrawstatus' end) end
+      end,
+    },
     utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
       hl = { fg = 'bg' },
-      -- { provider = ' ' },
-      { provider = '' },
+      { provider = function(self) return self.loading and '' or '' end },
       Space,
       {
         provider = function()
@@ -300,7 +301,7 @@ local Opts = function()
       end
       self.components = self:new(self.active, 1)
     end,
-    update = { 'DiagnosticChanged', 'BufEnter' },
+    update = { 'DiagnosticChanged', 'BufEnter', callback = vim.schedule_wrap(function() vim.cmd 'redrawstatus' end) },
     { DelimiterL, hl = function(self) return { fg = self.active[1].hl.bg } end },
     { provider = function(self) return self.components:eval() end },
     { DelimiterR, hl = function(self) return { fg = self.active[#self.active].hl.bg } end },
@@ -315,28 +316,28 @@ local Opts = function()
     },
   }
 
-  local LastYanked = {
-    update = { 'TextYankPost', 'ModeChanged' },
-    init = function(self)
-      local content = vim.fn.getreginfo('+').regcontents
-      if not content or #content == 0 then
-        self.count = 0
-        self.yanked = ''
-        return
-      end
-      self.count = #content
-      self.yanked = content[1]:gsub('^%s*(.-)%s*$', '%1')
-    end,
-    provider = function(self)
-      if self.count == 0 or self.yanked == '' then return '' end
-      local max_len = 12
-      local text = vim.fn.strcharpart(self.yanked, 0, max_len)
-      if vim.fn.strchars(self.yanked) > max_len then text = text .. '...' end
-
-      local line_text = self.count == 1 and '[1 line] ' or '[' .. self.count .. ' lines] '
-      return line_text .. text
-    end,
-  }
+  -- local LastYanked = {
+  --   update = { 'TextYankPost', 'ModeChanged' },
+  --   init = function(self)
+  --     local content = vim.fn.getreginfo('+').regcontents
+  --     if not content or #content == 0 then
+  --       self.count = 0
+  --       self.yanked = ''
+  --       return
+  --     end
+  --     self.count = #content
+  --     self.yanked = content[1]:gsub('^%s*(.-)%s*$', '%1')
+  --   end,
+  --   provider = function(self)
+  --     if self.count == 0 or self.yanked == '' then return '' end
+  --     local max_len = 12
+  --     local text = vim.fn.strcharpart(self.yanked, 0, max_len)
+  --     if vim.fn.strchars(self.yanked) > max_len then text = text .. '...' end
+  --
+  --     local line_text = self.count == 1 and '[1 line] ' or '[' .. self.count .. ' lines] '
+  --     return line_text .. text
+  --   end,
+  -- }
 
   local LastSearched = {
     init = function(self)
@@ -422,10 +423,19 @@ local Opts = function()
     end,
     -- evaluate the children containing navic components
     provider = function(self) return self.child:eval() end,
-    -- update = { 'CursorMoved', 'CursorHold' },
+    update = {
+      'CursorMoved',
+      'User',
+      callback = function(_, args)
+        if args.event == 'User' and args.match == 'NavicReady' then vim.schedule(function() vim.cmd 'redrawstatus' end) end
+      end,
+    },
   }
 
   local StatusLine = {
+    static = {
+      MiniIcons = require 'mini.icons',
+    },
     init = function(self)
       self.filename = vim.api.nvim_buf_get_name(0)
       local icon, hl = MiniIcons.get('file', self.filename)
@@ -490,6 +500,8 @@ local Colors = function()
     cmt = Comment.fg,
     str = String.fg,
     func = Function.fg,
+    const = Constant.fg,
+    num = Number.fg,
     error = error.fg,
     warn = warn.fg,
     hint = hint.fg,
@@ -509,6 +521,7 @@ end
 return {
   'rebelot/heirline.nvim',
   event = 'VeryLazy',
+  dependencies = { 'nvim-mini/mini.icons' },
   opts = Opts,
   config = function(_, opts)
     local heirline = require 'heirline'

@@ -61,7 +61,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
           local win = vim.fn.bufwinid(bufnr)
           if win ~= -1 then
             lib.update_context(bufnr, vim.api.nvim_win_get_cursor(win))
-            vim.cmd 'redrawstatus'
+            vim.api.nvim_exec_autocmds('User', { pattern = 'NavicReady' })
           end
         elseif attempts < 300 then -- give up after ~30s
           attempts = attempts + 1

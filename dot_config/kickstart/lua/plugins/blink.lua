@@ -14,6 +14,22 @@ return {
     completion = {
       trigger = { show_in_snippet = false },
       ghost_text = { enabled = true },
+      menu = {
+        draw = {
+          components = {
+            kind_icon = {
+              text = function(ctx)
+                local kind_icon, _, _ = require('mini.icons').get('lsp', ctx.kind)
+                return kind_icon
+              end,
+            },
+          },
+          columns = {
+            { 'label', 'label_description', gap = 1 },
+            { 'kind_icon', 'kind', gap = 1 },
+          },
+        },
+      },
     },
     signature = {
       enabled = true,
