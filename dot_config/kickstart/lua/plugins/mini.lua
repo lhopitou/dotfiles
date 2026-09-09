@@ -106,6 +106,7 @@ return {
         scroll = {
           timing = animate.gen_timing.linear { duration = 150, easing = 'out', unit = 'total' },
           subscroll = animate.gen_subscroll.equal {
+            max_output_steps = 30,
             predicate = function(total_scroll)
               if mouse_scrolled then
                 mouse_scrolled = false
@@ -203,6 +204,10 @@ return {
         { mode = 'n', keys = '<leader>s', desc = '+search' },
         { mode = 'n', keys = '<leader>w', desc = '+window' },
         { mode = 'n', keys = '<leader>z', desc = '+quit' },
+        { mode = 'n', keys = '<leader>w+', postkeys = '<leader>w' },
+        { mode = 'n', keys = '<leader>w-', postkeys = '<leader>w' },
+        { mode = 'n', keys = '<leader>w.', postkeys = '<leader>w' },
+        { mode = 'n', keys = '<leader>w,', postkeys = '<leader>w' },
       }
 
       -- Text objects in Visual and Operator-pending mode. The `o` clues also

@@ -149,7 +149,8 @@ local Opts = function()
   local RootDir = {
     init = function(self)
       self.root_dir = get_root_dir()
-      self.dir_hl = utils.get_highlight('@function.builtin').fg
+      local _, hl = MiniIcons.get('directory', '.git')
+      self.dir_hl = utils.get_highlight(tostring(hl)).fg
     end,
     hl = { fg = 'bg', bold = true },
     utils.surround(
@@ -309,11 +310,28 @@ local Opts = function()
 
   local Git = {
     condition = conditions.is_git_repo,
-    init = function(self) self.status_dict = vim.b.gitsigns_status_dict end,
-    { -- git branch name
-      provider = function(self) return ' ' .. self.status_dict.head end,
-      hl = { bold = true },
+    update = {
+      'BufEnter',
+      'User',
+      callback = vim.schedule_wrap(function(_, args)
+        if args.event == 'User' and not vim.tbl_contains({ 'GitSignsUpdate', 'GitSignsChanged' }, args.match) then return end
+        vim.cmd 'redrawstatus'
+      end),
     },
+    init = function(self)
+      self.status_dict = vim.b.gitsigns_status_dict or { head = vim.b.gitsigns_head }
+      local dict = self.status_dict
+      if dict.added == nil and dict.changed == nil and dict.removed == nil then
+        self.color = 'diff_del'
+      else
+        local total = (dict.added or 0) + (dict.changed or 0) + (dict.removed or 0)
+        self.color = total == 0 and 'diff_change' or 'diff_add'
+      end
+    end,
+    utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.color end, {
+      hl = { fg = 'bg' },
+      provider = function(self) return ' ' .. (self.status_dict.head or '') end,
+    }),
   }
 
   -- local LastYanked = {
@@ -433,9 +451,6 @@ local Opts = function()
   }
 
   local StatusLine = {
-    static = {
-      MiniIcons = require 'mini.icons',
-    },
     init = function(self)
       self.filename = vim.api.nvim_buf_get_name(0)
       local icon, hl = MiniIcons.get('file', self.filename)
@@ -448,14 +463,14 @@ local Opts = function()
     RootDir,
     Space,
     Git,
-    Space,
-    Diagnostics,
     Align,
     FileName,
     Space,
     Navic,
     Align,
     LastSearched,
+    Space,
+    Diagnostics,
     Space,
     LSPActive,
     Space,
@@ -485,6 +500,9 @@ local Colors = function()
   local warn = get_hl 'DiagnosticWarn'
   local hint = get_hl 'DiagnosticHint'
   local info = get_hl 'DiagnosticInfo'
+  local DiffAdd = get_hl 'GitSignsAdd'
+  local DiffChange = get_hl 'GitSignsChange'
+  local DiffDelete = get_hl 'GitSignsDelete'
 
   local mode_normal = lualine_mode 'normal'
   local mode_insert = lualine_mode 'insert'
@@ -492,7 +510,7 @@ local Colors = function()
   local mode_command = lualine_mode 'command'
   local mode_replace = lualine_mode 'replace'
   local mode_inactive = lualine_mode 'inactive'
-  local mode_terminal = lualine_mode 'terminal'
+  local mode_terminal = lualine_mode('terminal', mode_command)
 
   local colors = {
     bg = Normal.bg,
@@ -506,6 +524,9 @@ local Colors = function()
     warn = warn.fg,
     hint = hint.fg,
     info = info.fg,
+    diff_add = DiffAdd.fg,
+    diff_change = DiffChange.fg,
+    diff_del = DiffDelete.fg,
     normal = mode_normal,
     insert = mode_insert,
     visual = mode_visual,
@@ -525,7 +546,13 @@ return {
   opts = Opts,
   config = function(_, opts)
     local heirline = require 'heirline'
+    local utils = require 'heirline.utils'
     heirline.load_colors(Colors())
     heirline.setup(opts)
+    vim.api.nvim_create_augroup('Heirline', { clear = true })
+    vim.api.nvim_create_autocmd('ColorScheme', {
+      callback = function() utils.on_colorscheme(Colors()) end,
+      group = 'Heirline',
+    })
   end,
 }

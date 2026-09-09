@@ -22,4 +22,10 @@ return {
   {
     'catppuccin/nvim',
   },
+  {
+    'webhooked/kanso.nvim',
+  },
+  {
+    'folke/tokyonight.nvim',
+  },
 }

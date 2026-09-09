@@ -20,6 +20,7 @@ return {
         topdelete = { text = '' },
         changedelete = { text = '▎' },
       },
+      current_line_blame = true,
       on_attach = function(buffer)
         local gs = require 'gitsigns'
 
@@ -42,7 +43,7 @@ return {
         map('n', ']H', function() gs.nav_hunk 'last' end, 'Last hunk')
         map('n', '[H', function() gs.nav_hunk 'first' end, 'First hunk')
         map({ 'n', 'x' }, '<leader>gs', ':Gitsigns stage_hunk<CR>', 'Stage hunk')
-        map({ 'n', 'x' }, '<leader>gu', ':Gitsigns undo_stage_hunk<CR>', 'Undo Stage hunk')
+        map({ 'n', 'x' }, '<leader>gu', ':Gitsigns undo_stage_hunk<CR>', 'Undo stage hunk')
         map({ 'n', 'x' }, '<leader>gr', ':Gitsigns reset_hunk<CR>', 'Reset hunk')
         map('n', '<leader>gS', gs.stage_buffer, 'Stage buffer')
         map('n', '<leader>gR', gs.reset_buffer, 'Reset buffer')
