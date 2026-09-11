@@ -38,12 +38,22 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.lsp.inlay_hint.enable()
 
     local map = vim.keymap.set
+    local del = function(mode, key) pcall(vim.keymap.del, mode, key) end
+    del({ 'n', 'x' }, 'gra')
+    del('n', 'gri')
+    del('n', 'grn')
+    del('n', 'grr')
+    del('n', 'grt')
+    del('n', 'grx')
     map('n', 'gd', '<cmd>FzfLua lsp_definitions     jump1=true ignore_current_line=true<cr>', { desc = 'Goto Definition' })
     map('n', 'gr', '<cmd>FzfLua lsp_references      jump1=true ignore_current_line=true<cr>', { desc = 'References', nowait = true })
     map('n', 'gI', '<cmd>FzfLua lsp_implementations jump1=true ignore_current_line=true<cr>', { desc = 'Goto Implementation' })
     map('n', 'gK', '<cmd>FzfLua lsp_typedefs        jump1=true ignore_current_line=true<cr>', { desc = 'Goto Type Definition' })
-    map({ 'n', 'x' }, '<leader>la', function() vim.lsp.buf.code_action() end, { desc = 'Code action' })
-    map({ 'n', 'x' }, '<leader>lr', function() vim.lsp.buf.rename() end, { desc = 'Rename' })
+    map({ 'n', 'x' }, '<leader>la', '<cmd>FzfLua lsp_code_actions<cr>', { desc = 'Code action' })
+    map('n', '<leader>lr', function() vim.lsp.buf.rename() end, { desc = 'Rename' })
+    map('n', '<leader>lx', function() vim.lsp.codelens.run() end, { desc = 'Run codelens' })
+    map('n', '<leader>fl', '<cmd>FzfLua lsp_document_symbols<cr>', { desc = 'Find LSP document symbols' })
+    map('n', '<leader>fL', '<cmd>FzfLua lsp_live_workspace_symbols<cr>', { desc = 'Find LSP workspace symbols' })
 
     -- nvim-navic: the first documentSymbol response arrives asynchronously, and
     -- navic only computes its breadcrumb context on cursor events (CursorMoved /

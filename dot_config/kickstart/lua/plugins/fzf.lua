@@ -11,7 +11,7 @@ return {
         actions = {
           files = {
             true,
-            ['ctrl-i'] = Fzflua.actions.toggle_ignore,
+            ['ctrl-x'] = Fzflua.actions.toggle_ignore,
             ['ctrl-h'] = Fzflua.actions.toggle_hidden,
           },
         },
@@ -31,7 +31,7 @@ return {
       { '<leader>fo', '<cmd>FzfLua oldfiles<cr>', desc = 'Find oldfiles' },
       { '<leader>fh', '<cmd>FzfLua helptags<cr>', desc = 'Find help' },
       { '<leader>fk', '<cmd>FzfLua keymaps<cr>', desc = 'Find keymaps' },
-      { '<leader>fs', '<cmd>FzfLua lsp_document_symbols<cr>', desc = 'Find LSP document symbols' },
+      { '<leader>fd', '<cmd>FzfLua diagnostics_workspace<cr>', desc = 'Find workspace diagnostics' },
 
       { '<leader>sg', '<cmd>FzfLua live_grep<cr>', desc = 'Live grep' },
       { '<leader>sw', '<cmd>FzfLua grep_cword<cr>', desc = 'Search word under cursor' },

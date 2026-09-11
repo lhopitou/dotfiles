@@ -105,11 +105,6 @@ local Opts = function()
       local mode = self.mode:sub(1, 1) -- get only the first mode character
       return self.mode_colors[mode]
     end, { provider = function(self) return ' ' .. string.upper(self.mode_names[self.mode]) end }),
-    update = {
-      'ModeChanged',
-      pattern = '*:*',
-      callback = vim.schedule_wrap(function() vim.cmd 'redrawstatus' end),
-    },
   }
 
   local Ruler = {
@@ -216,10 +211,14 @@ local Opts = function()
       self.ft = vim.bo.filetype ~= '' and vim.bo.filetype or 'new'
       self.ft_icon = MiniIcons.get('filetype', self.ft)
     end,
-    utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
-      hl = { fg = 'bg' },
+    {
+      hl = function(self) return { bg = self.file_hl, fg = 'bg' } end,
       { provider = function(self) return self.ft_icon .. ' ' .. string.upper(self.ft) end },
-    }),
+    },
+    -- utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
+    --   hl = { fg = 'bg' },
+    --   { provider = function(self) return self.ft_icon .. ' ' .. string.upper(self.ft) end },
+    -- }),
   }
 
   local LSPActive = {
@@ -248,8 +247,8 @@ local Opts = function()
         if component.loading ~= was_loading then vim.schedule(function() vim.cmd 'redrawstatus' end) end
       end,
     },
-    utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
-      hl = { fg = 'bg' },
+    {
+      hl = function(self) return { bg = self.file_hl, fg = 'bg' } end,
       { provider = function(self) return self.loading and '' or '' end },
       Space,
       {
@@ -261,7 +260,23 @@ local Opts = function()
           return table.concat(names, ' ')
         end,
       },
-    }),
+      { provider = '  ' },
+      -- { provider = ' 󰜋 ' },
+    },
+    -- utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
+    --   hl = { fg = 'bg' },
+    --   { provider = function(self) return self.loading and '' or '' end },
+    --   Space,
+    --   {
+    --     provider = function()
+    --       local names = {}
+    --       for _, server in pairs(vim.lsp.get_clients { bufnr = 0 }) do
+    --         table.insert(names, server.name)
+    --       end
+    --       return table.concat(names, ' ')
+    --     end,
+    --   },
+    -- }),
   }
 
   local FormatterActive = {
@@ -277,12 +292,24 @@ local Opts = function()
     end,
     {
       condition = function(self) return #self.formatters > 0 end,
-      utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
-        provider = function(self) return #self.formatters > 0 and ' ' .. table.concat(self.formatters, '->') end or '',
-        hl = { fg = 'bg' },
-      }),
+      hl = function(self) return { bg = self.file_hl, fg = 'bg' } end,
+      {
+        provider = function(self) return #self.formatters > 0 and ' ' .. table.concat(self.formatters, '>') end or '',
+      },
+      { provider = '  ' },
+      -- { provider = ' 󰜋 ' },
+      -- utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
+      --   provider = function(self) return #self.formatters > 0 and ' ' .. table.concat(self.formatters, '->') end or '',
+      --   hl = { fg = 'bg' },
+      -- }),
     },
   }
+
+  local FileTypeBlock = utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.file_hl end, {
+    FormatterActive,
+    LSPActive,
+    FileType,
+  })
 
   local Diagnostics = {
     condition = conditions.has_diagnostics,
@@ -306,6 +333,7 @@ local Opts = function()
     { DelimiterL, hl = function(self) return { fg = self.active[1].hl.bg } end },
     { provider = function(self) return self.components:eval() end },
     { DelimiterR, hl = function(self) return { fg = self.active[#self.active].hl.bg } end },
+    Space,
   }
 
   local Git = {
@@ -464,25 +492,51 @@ local Opts = function()
     Space,
     Git,
     Align,
-    FileName,
-    Space,
-    Navic,
-    Align,
+    -- FileName,
+    -- Space,
+    -- Navic,
+    -- Align,
     LastSearched,
     Space,
     Diagnostics,
-    Space,
-    LSPActive,
-    Space,
-    FormatterActive,
-    Space,
-    FileType,
+    FileTypeBlock,
+    -- LSPActive,
+    -- FormatterActive,
+    -- FileType,
     Space,
     Ruler,
   }
 
+  local Winbar = {
+    init = function(self)
+      self.filename = vim.api.nvim_buf_get_name(0)
+      local icon, hl = MiniIcons.get('file', self.filename)
+      self.icon = icon
+      self.file_hl = utils.get_highlight(tostring(hl)).fg
+    end,
+    hl = { bg = 'bg', fg = 'fg' },
+    FileName,
+    Space,
+    {
+      condition = function() return conditions.is_active() end,
+      Navic,
+    },
+    Align,
+  }
+
   return {
     statusline = StatusLine,
+    winbar = Winbar,
+    opts = {
+      -- if the callback returns true, the winbar will be disabled for that window
+      -- the args parameter corresponds to the table argument passed to autocommand callbacks. :h nvim_lua_create_autocmd()
+      disable_winbar_cb = function(args)
+        return conditions.buffer_matches({
+          buftype = { 'nofile', 'prompt', 'quickfix' },
+          filetype = { 'fzf' },
+        }, args.buf)
+      end,
+    },
   }
 end
 

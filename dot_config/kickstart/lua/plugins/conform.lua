@@ -5,6 +5,17 @@ return {
   event = { 'BufWritePre' },
   dependencies = { 'mason.nvim' },
   cmd = 'ConformInfo',
+  keys = {
+    {
+      '<leader>lf',
+      function()
+        require('conform').format()
+        vim.cmd 'update'
+      end,
+      desc = 'Format buffer',
+    },
+    { '<leader>qf', '<cmd>cfdo lua require("conform").format() vim.cmd("update")<cr>', desc = 'Format quickfix files' },
+  },
   opts = {
     default_format_opts = {
       timeout_ms = 3000,

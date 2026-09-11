@@ -51,17 +51,17 @@ return {
       map({ 'n', 'x', 'o' }, '[t', function() previous_start('@jsx_element.outer', 'textobjects') end, { desc = 'Previous tag' })
     end,
   },
-  {
-    'nvim-treesitter/nvim-treesitter-context',
-    event = 'LazyFile',
-    opts = {
-      multiwindow = true,
-      multiline_threshold = 1,
-    },
-    config = function(_, opts)
-      require('treesitter-context').setup(opts)
-      map('n', 'gp', function() require('treesitter-context').go_to_context(vim.v.count1) end, { desc = 'Go to context parent', silent = true })
-      map('n', 'gP', function() require('treesitter-context').go_to_context(99) end, { desc = 'Go to root context parent', silent = true })
-    end,
-  },
+  -- {
+  --   'nvim-treesitter/nvim-treesitter-context',
+  --   event = 'LazyFile',
+  --   opts = {
+  --     multiwindow = true,
+  --     multiline_threshold = 1,
+  --   },
+  --   config = function(_, opts)
+  --     require('treesitter-context').setup(opts)
+  --     map('n', 'gp', function() require('treesitter-context').go_to_context(vim.v.count1) end, { desc = 'Go to context parent', silent = true })
+  --     map('n', 'gP', function() require('treesitter-context').go_to_context(99) end, { desc = 'Go to root context parent', silent = true })
+  --   end,
+  -- },
 }
