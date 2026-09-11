@@ -533,7 +533,7 @@ local Opts = function()
       disable_winbar_cb = function(args)
         return conditions.buffer_matches({
           buftype = { 'nofile', 'prompt', 'quickfix' },
-          filetype = { 'fzf' },
+          filetype = { 'fzf', '^git*' },
         }, args.buf)
       end,
     },
