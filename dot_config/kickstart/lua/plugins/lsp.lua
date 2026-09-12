@@ -48,5 +48,28 @@ return {
     opts = {
       lsp = { auto_attach = true },
     },
+    config = function(_, opts)
+      local navic = require 'nvim-navic'
+      navic.setup(opts)
+
+      local goto_parent = function(top)
+        if not navic.is_available() then return end
+        local data = navic.get_data()
+        if #data == 0 then return end
+        local count = math.min(vim.v.count1, #data)
+        local target
+        if top then
+          target = data[count]
+        else
+          target = data[#data - count + 1]
+        end
+        vim.cmd "normal! m'"
+        vim.api.nvim_win_set_cursor(0, { target.scope.start.line, target.scope.start.character })
+      end
+
+      local map = vim.keymap.set
+      map('n', 'gp', function() goto_parent(false) end, { desc = 'Go to root parent' })
+      map('n', 'gP', function() goto_parent(true) end, { desc = 'Go to parent' })
+    end,
   },
 }
