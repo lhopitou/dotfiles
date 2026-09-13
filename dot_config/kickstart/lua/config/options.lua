@@ -175,7 +175,7 @@ end
 -- Add ** to the path for expansion in :find
 vim.opt.path:append '**'
 
--- if vim.fn.has 'nvim-0.12' == 1 then require('vim._core.ui2').enable() end
+require('vim._core.ui2').enable()
 
 vim.o.winborder = 'rounded'
 
