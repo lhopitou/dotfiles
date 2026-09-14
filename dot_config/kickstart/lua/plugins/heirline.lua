@@ -228,6 +228,7 @@ local Opts = function()
       loading = false,
     },
     update = {
+      'BufEnter',
       'LspAttach',
       'LspDetach',
       'LspProgress',

@@ -46,5 +46,23 @@ return {
       use_default_keymaps = false,
     },
   },
+  {
+    'rachartier/tiny-cmdline.nvim',
+    -- init = function() vim.o.cmdheight = 0 end,
+    opts = function()
+      local cmdline = require 'tiny-cmdline'
+      return {
+        position = {
+          y = '15%',
+        },
+        menu_col_offset = 1,
+        native_types = {},
+        title = {
+          enabled = true,
+        },
+        on_reposition = cmdline.adapters.blink,
+      }
+    end,
+  },
 }
 -- vim: ts=2 sts=2 sw=2 et

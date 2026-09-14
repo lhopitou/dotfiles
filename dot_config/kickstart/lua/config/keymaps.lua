@@ -102,3 +102,19 @@ map('n', '<leader>za', ':wqa<cr>', { desc = 'Quit Neovim' })
 map('n', '<leader>zz', 'ZZ', { desc = 'Save and quit' })
 map('n', '<leader>zq', 'ZQ', { desc = 'Quit without save' })
 map('n', '<leader>zr', 'ZR', { desc = 'Restart' })
+
+-- Quit floating windows
+map('n', 'q', function()
+  local windows = vim.api.nvim_tabpage_list_wins(0)
+  local has_float = false
+  for _, winid in ipairs(windows) do
+    local config = vim.api.nvim_win_get_config(winid)
+    if config.relative ~= '' and config.focusable and not config.hidden then has_float = true end
+  end
+  if has_float then
+    return '<cmd>fclose<cr>'
+  else
+    vim.notify 'Normal q!'
+    return 'q'
+  end
+end, { expr = true })
