@@ -117,7 +117,7 @@ vim.api.nvim_create_autocmd('FileType', {
 
 vim.api.nvim_create_autocmd('FileType', {
   group = augroup 'close_with_q',
-  pattern = { 'gitsigns-blame', 'help', 'qf', 'grug-far', 'git' },
+  pattern = { 'gitsigns-blame', 'help', 'qf', 'grug-far', 'git', 'checkhealth' },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
     vim.schedule(function()

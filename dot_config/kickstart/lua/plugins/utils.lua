@@ -48,7 +48,7 @@ return {
   },
   {
     'rachartier/tiny-cmdline.nvim',
-    -- init = function() vim.o.cmdheight = 0 end,
+    init = function() vim.o.cmdheight = 0 end,
     opts = function()
       local cmdline = require 'tiny-cmdline'
       return {

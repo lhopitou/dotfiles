@@ -162,6 +162,82 @@ local Opts = function()
     },
   }
 
+  local NormalFileName = {
+    condition = function() return not vim.wo.diff end,
+    provider = function(self)
+      if self.filename == '' then return '[No Name]' end
+      return string.gsub(self.filename, '^' .. vim.pesc(self.root_dir), '@')
+    end,
+  }
+
+  local DiffviewName = {
+    condition = function() return vim.wo.diff end,
+    static = {
+      diffview_meta = function()
+        local view = require('diffview.lib').get_current_view()
+        if not view then return '[No Name]' end
+
+        local layout = view.cur_layout
+        local kind = view.cur_entry.kind
+        local winid = vim.api.nvim_get_current_win()
+
+        if kind == 'working' then
+          for _, sym in ipairs { 'a', 'b' } do
+            local w = layout[sym]
+            if w and w.id == winid then return {
+              label = ({ a = 'base', b = 'working' })[sym],
+              path = w.file.path,
+            } end
+          end
+        elseif kind == 'staged' then
+          for _, sym in ipairs { 'a', 'b' } do
+            local w = layout[sym]
+            if w and w.id == winid then return {
+              label = ({ a = 'base', b = 'staged' })[sym],
+              path = w.file.path,
+            } end
+          end
+        else
+          if kind == 'conflicting' then
+            for _, sym in ipairs { 'a', 'b', 'c', 'd' } do
+              local w = layout[sym]
+              if w and w.id == winid then
+                return {
+                  label = ({ a = 'ours', b = 'local', c = 'theirs', d = 'base' })[sym],
+                  stage = w.file.rev and w.file.rev.stage, -- 2=ours, 3=theirs, 1=base (nil for local)
+                  path = w.file.path,
+                }
+              end
+            end
+          else
+            return '[No Name]'
+          end
+        end
+        -- vim.print(view)
+        -- if not (view and view.cur_entry and view.cur_entry.kind == 'conflicting') then return end
+        -- local layout = view.cur_layout
+        -- local winid = vim.api.nvim_get_current_win()
+        -- for _, sym in ipairs { 'a', 'b', 'c', 'd' } do
+        --   local w = layout[sym]
+        --   if w and w.id == winid then
+        --     return {
+        --       slot = sym, -- "a"|"b"|"c"|"d"
+        --       label = ({ a = 'ours', b = 'local', c = 'theirs', d = 'base' })[sym],
+        --       stage = w.file.rev and w.file.rev.stage, -- 2=ours, 3=theirs, 1=base (nil for local)
+        --       path = w.file.path,
+        --       ctx = view.merge_ctx, -- full hashes + ref_names per side
+        --     }
+        --   end
+        -- end
+      end,
+    },
+    provider = function(self)
+      local meta = self.diffview_meta()
+      local stage_str = meta.stage and '[' .. meta.stage .. ']' or ''
+      return '@/' .. meta.path .. ' (' .. string.upper(meta.label) .. stage_str .. ')'
+    end,
+  }
+
   local FileName = {
     init = function(self)
       self.root_dir = get_root_dir()
@@ -186,12 +262,8 @@ local Opts = function()
     {
       hl = function(self) return { bg = self.file_hl, fg = 'bg' } end,
       Space,
-      {
-        provider = function(self)
-          if self.filename == '' then return '[No Name]' end
-          return string.gsub(self.filename, '^' .. vim.pesc(self.root_dir), '@')
-        end,
-      },
+      NormalFileName,
+      DiffviewName,
     },
     { DelimiterR, hl = function(self) return { fg = self.file_hl } end },
     update = {
@@ -534,7 +606,7 @@ local Opts = function()
       disable_winbar_cb = function(args)
         return conditions.buffer_matches({
           buftype = { 'nofile', 'prompt', 'quickfix' },
-          filetype = { 'fzf', '^git*' },
+          filetype = { 'fzf', '^git*', '^neogit*' },
         }, args.buf)
       end,
     },

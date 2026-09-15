@@ -61,7 +61,10 @@ return {
     },
     opts = {
       view = {
-        merge_tool = { layout = 'diff3_mixed' },
+        merge_tool = {
+          layout = 'diff3_mixed',
+          winbar_info = false,
+        },
       },
       file_panel = {
         listing_style = 'list',

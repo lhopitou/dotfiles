@@ -114,7 +114,6 @@ map('n', 'q', function()
   if has_float then
     return '<cmd>fclose<cr>'
   else
-    vim.notify 'Normal q!'
     return 'q'
   end
 end, { expr = true })
