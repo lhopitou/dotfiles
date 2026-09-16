@@ -117,3 +117,14 @@ map('n', 'q', function()
     return 'q'
   end
 end, { expr = true })
+
+-- Jump out of pairs in insert mode
+map('i', '<tab>', function()
+  local pairs = { '"', "'", '`', ')', ']', '}' }
+  local char = vim.fn.getline('.'):sub(vim.fn.col '.'):sub(1, 1)
+  if vim.tbl_contains(pairs, char) then
+    return '<right>'
+  else
+    return '<tab>'
+  end
+end, { expr = true })
