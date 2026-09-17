@@ -1,3 +1,7 @@
+if [[ ! -z ${ZSH_PROFILING} ]]; then
+  zmodload zsh/zprof
+fi
+
 zstyle ':completion:*' completer _complete _ignored _correct _approximate
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
@@ -8,16 +12,16 @@ zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p
 autoload -Uz compinit
 if [[ ! -d ${XDG_CACHE_HOME}/zsh ]]; then
   mkdir -p ${XDG_CACHE_HOME}/zsh
-fi;
+fi
 if [[ -n ${XDG_CACHE_HOME}/zsh/zcompdump(#qN.mh+24) ]]; then
-	compinit -d "$XDG_CACHE_HOME/zsh/zcompdump";
+  compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
 else
-	compinit -C -d "$XDG_CACHE_HOME/zsh/zcompdump";
-fi;
+  compinit -C -d "$XDG_CACHE_HOME/zsh/zcompdump"
+fi
 
 if [[ ! -d ${XDG_STATE_HOME}/zsh ]]; then
   mkdir -p ${XDG_STATE_HOME}/zsh
-fi;
+fi
 HISTFILE="$XDG_STATE_HOME"/zsh/history
 HISTSIZE=100000
 SAVEHIST=100000
@@ -32,18 +36,21 @@ ZLE_RPROMPT_INDENT=0
 export PATH=/home/lhopitou/.opencode/bin:$PATH
 
 # Homebrew
-export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew";
-export HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar";
-export HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew";
-fpath[1,0]="/home/linuxbrew/.linuxbrew/share/zsh/site-functions";
-export FPATH;
-export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin";
-[ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
-export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:${INFOPATH:-}";
+export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+export HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar"
+export HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew"
+fpath[1,0]="/home/linuxbrew/.linuxbrew/share/zsh/site-functions"
+export FPATH
+export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin"
+[ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}"
+export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:${INFOPATH:-}"
 
 # Go
 export PATH=$PATH:/usr/local/go/bin
 export PATH="$PATH:$(go env GOPATH)/bin"
+
+# pi agent
+export PI_CODING_AGENT_DIR="${XDG_CONFIG_HOME}/pi"
 
 source "$ZDOTDIR/plugins.zsh"
 source "$ZDOTDIR/aliases.zsh"
@@ -53,3 +60,15 @@ eval "$(zoxide init zsh)"
 eval "$(fnm env --use-on-cd --version-file-strategy=recursive --corepack-enabled --shell zsh)"
 eval "$(fnm completions --shell zsh)"
 eval "$(starship init zsh)"
+
+# ssh-agent auto-start
+if ! pgrep -u "$USER" ssh-agent >/dev/null; then
+  ssh-agent -t 1h >"$XDG_RUNTIME_DIR/ssh-agent.env"
+fi
+if [ ! -f "$SSH_AUTH_SOCK" ]; then
+  source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+fi
+
+if [[ ! -z ${ZSH_PROFILING} ]]; then
+  zprof
+fi

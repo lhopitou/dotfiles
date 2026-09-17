@@ -438,6 +438,7 @@ default_layout "compact"
 // also default to the scrollback size. This does nothing if `serialize_pane_viewport` is not true.
 // 
 // scrollback_lines_to_serialize 10000
+scroll_mode_sync false
  
 // Enable or disable the rendering of styled and colored underlines (undercurl).
 // May need to be disabled for certain unsupported terminals
