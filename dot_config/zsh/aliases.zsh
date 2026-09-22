@@ -14,5 +14,5 @@ alias zj='zellij'
 alias c='clear'
 alias so='source $ZDOTDIR/.zshrc'
 
-alias kickstart='NVIM_APPNAME=kickstart nvim'
+alias lazy='NVIM_APPNAME=lazy nvim'
 alias cz='chezmoi'
