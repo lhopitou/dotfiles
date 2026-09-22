@@ -173,6 +173,7 @@ local Opts = function()
   local DiffviewName = {
     condition = function() return vim.wo.diff end,
     static = {
+      -- TODO: git name-rev --name-only {hash}
       diffview_meta = function()
         local view = require('diffview.lib').get_current_view()
         if not view then return '[No Name]' end
@@ -367,7 +368,7 @@ local Opts = function()
       condition = function(self) return #self.formatters > 0 end,
       hl = function(self) return { bg = self.file_hl, fg = 'bg' } end,
       {
-        provider = function(self) return #self.formatters > 0 and ' ' .. table.concat(self.formatters, '>') end or '',
+        provider = function(self) return #self.formatters > 0 and ' ' .. table.concat(self.formatters, ' 󰅂 ') end or '',
       },
       { provider = '  ' },
       -- { provider = ' 󰜋 ' },
