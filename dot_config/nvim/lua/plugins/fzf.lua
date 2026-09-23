@@ -13,6 +13,10 @@ return {
             true,
             ['ctrl-x'] = Fzflua.actions.toggle_ignore,
             ['ctrl-h'] = Fzflua.actions.toggle_hidden,
+            ['ctrl-b'] = Fzflua.actions.file_split,
+            ['ctrl-r'] = Fzflua.actions.file_vsplit,
+            ['ctrl-b'] = Fzflua.actions.file_split,
+            ['ctrl-r'] = Fzflua.actions.file_vsplit,
           },
         },
       }
