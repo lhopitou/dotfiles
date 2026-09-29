@@ -354,7 +354,7 @@ local Opts = function()
   }
 
   local FormatterActive = {
-    update = { 'BufEnter', 'BufWritePost' },
+    update = { 'BufEnter', 'BufWritePost', 'LspAttach' },
     init = function(self)
       local conform = require 'conform'
       local formatters, lsp = conform.list_formatters_to_run(0)
