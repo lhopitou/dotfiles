@@ -25,7 +25,7 @@ fi
 HISTFILE="$XDG_STATE_HOME"/zsh/history
 HISTSIZE=100000
 SAVEHIST=100000
-setopt append_history share_history hist_ignore_dups hist_ignore_space hist_expire_dups_first hist_find_no_dups
+setopt append_history share_history hist_ignore_dups hist_ignore_space hist_expire_dups_first hist_find_no_dups inc_append_history
 setopt autocd extendedglob numeric_glob_sort
 unsetopt beep nomatch
 bindkey -e

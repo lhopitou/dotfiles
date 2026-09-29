@@ -16,3 +16,7 @@ alias so='source $ZDOTDIR/.zshrc'
 
 alias lazy='NVIM_APPNAME=lazy nvim'
 alias cz='chezmoi'
+
+fnm-gi() {
+  npm install -g --ignore-scripts $(fnm exec npm ls -g --json | jq -r '.dependencies | del(.npm, .corepack) | to_entries | map("\(.key)@\(.value.version)") | join(" ")')
+}
