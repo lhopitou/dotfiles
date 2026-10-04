@@ -25,7 +25,7 @@ fi
 HISTFILE="$XDG_STATE_HOME"/zsh/history
 HISTSIZE=100000
 SAVEHIST=100000
-setopt append_history share_history hist_ignore_dups hist_ignore_space hist_expire_dups_first hist_find_no_dups inc_append_history
+setopt append_history share_history hist_ignore_dups hist_ignore_space hist_expire_dups_first hist_find_no_dups
 setopt autocd extendedglob numeric_glob_sort
 unsetopt beep nomatch
 bindkey -e
@@ -49,9 +49,6 @@ export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:${INFOPATH:-}"
 export PATH=$PATH:/usr/local/go/bin
 export PATH="$PATH:$(go env GOPATH)/bin"
 
-# pi agent
-export PI_CODING_AGENT_DIR="${XDG_CONFIG_HOME}/pi"
-
 source "$ZDOTDIR/plugins.zsh"
 source "$ZDOTDIR/aliases.zsh"
 source "$ZDOTDIR/fzf.zsh"
@@ -59,7 +56,8 @@ source "$ZDOTDIR/fzf.zsh"
 eval "$(zoxide init zsh)"
 eval "$(fnm env --use-on-cd --version-file-strategy=recursive --corepack-enabled --shell zsh)"
 eval "$(fnm completions --shell zsh)"
-eval "$(starship init zsh)"
+# eval "$(starship init zsh)"
+eval "$(oh-my-posh --config "$XDG_CONFIG_HOME/oh-my-posh/theme.omp.toml" init zsh)"
 
 # ssh-agent auto-start
 if ! pgrep -u "$USER" ssh-agent >/dev/null; then

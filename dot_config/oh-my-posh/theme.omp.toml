@@ -1,0 +1,170 @@
+"$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json"
+final_space = true
+version = 4
+
+[transient_prompt]
+template = " "
+foreground_templates = ["{{ if eq .Code 0 }}green{{ else }}red{{ end }}"]
+
+[secondary_prompt]
+foreground = "darkGray"
+template = " "
+
+[[blocks]]
+type = "prompt"
+alignment = "left"
+newline = true
+
+# [[blocks.segments]]
+# type = "session"
+# style = "diamond"
+# leading_diamond = ""
+# trailing_diamond = ""
+# foreground = "black"
+# background = "cyan"
+# template = "{{ if .SSHSession }} {{ .UserName }}@{{ .HostName }} {{ end }}"
+
+[[blocks.segments]]
+type = "os"
+style = "diamond"
+leading_diamond = ""
+trailing_diamond = ""
+foreground = "white"
+background = "#FCC624" # tux yellow — fallback for any unlisted distro
+background_templates = [
+  '{{ if eq .OS "darwin" }}#000000{{ end }}',
+  '{{ if eq .OS "windows" }}#0078D6{{ end }}',
+  '{{ if eq .OS "ubuntu" }}#E95420{{ end }}',
+  '{{ if eq .OS "debian" }}#D70A53{{ end }}',
+  '{{ if eq .OS "arch" }}#1793D1{{ end }}',
+  '{{ if eq .OS "manjaro" }}#35BFA4{{ end }}',
+  '{{ if eq .OS "fedora" }}#51A2DA{{ end }}',
+  '{{ if eq .OS "mint" }}#86BE43{{ end }}',
+  '{{ if eq .OS "opensuse" }}#73BA25{{ end }}',
+  '{{ if eq .OS "centos" }}#932279{{ end }}',
+  '{{ if eq .OS "redhat" }}#EE0000{{ end }}',
+  '{{ if eq .OS "rocky" }}#10B981{{ end }}',
+  '{{ if or (eq .OS "alma") (eq .OS "almalinux") (eq .OS "almalinux9") }}#0069DA{{ end }}',
+  '{{ if eq .OS "kali" }}#557C94{{ end }}',
+  '{{ if eq .OS "elementary" }}#64BAFF{{ end }}',
+  '{{ if eq .OS "zorin" }}#15A6F0{{ end }}',
+  '{{ if eq .OS "alpine" }}#0D597F{{ end }}',
+  '{{ if eq .OS "nixos" }}#5277C3{{ end }}',
+  '{{ if eq .OS "void" }}#478061{{ end }}',
+  '{{ if eq .OS "gentoo" }}#54487A{{ end }}',
+  '{{ if eq .OS "endeavouros" }}#7F7FFF{{ end }}',
+  '{{ if eq .OS "raspbian" }}#A22846{{ end }}',
+  '{{ if eq .OS "freebsd" }}#AB2B28{{ end }}',
+]
+template = " {{ .Icon }} "
+
+[[blocks.segments]]
+type = "path"
+style = "powerline"
+powerline_symbol = ""
+foreground = "black"
+background_templates = ["{{ if .Writable }}magenta{{ else }}red{{ end }}"]
+
+[blocks.segments.options]
+style = "agnoster_full"
+
+[blocks.segments.options.mapped_locations]
+"/mnt/c" = "C:"
+"/mnt/d" = "D:"
+
+[[blocks.segments]]
+type = "git"
+style = "accordion"
+powerline_symbol = ""
+foreground = "black"
+background = "yellow"
+template = " {{ .HEAD }} "
+
+[blocks.segments.options]
+branch_icon = ''
+commit_icon = '@'
+
+[[blocks.segments]]
+type = "git"
+style = "accordion"
+powerline_symbol = ""
+foreground = "black"
+background = "red"
+template = "{{ if .Working.Changed }} {{ .Working.String }} {{ end }}"
+
+[[blocks.segments]]
+type = "git"
+style = "accordion"
+powerline_symbol = ""
+foreground = "black"
+background = "green"
+template = "{{ if .Staging.Changed }} {{ .Staging.String }} {{ end }}"
+
+[[blocks]]
+type = "prompt"
+alignment = "left"
+
+[[blocks.segments]]
+type = "node"
+style = "powerline"
+powerline_symbol = ""
+foreground = "white"
+background = "#339933"
+template = "  {{ .Full }} "
+
+[blocks.segments.options]
+fetch_package_manager = true
+
+[[blocks.segments]]
+type = "python"
+style = "powerline"
+powerline_symbol = ""
+foreground = "#FFD43B"
+background = "#306998"
+template = " {{ if .Error }}{{ .Error }}{{ else }} {{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }} "
+
+[[blocks.segments]]
+type = "java"
+style = "powerline"
+powerline_symbol = ""
+foreground = "white"
+background = "#4063D8"
+template = " {{ if .Error }}{{ .Error }}{{ else }} {{ .Full }}{{ end }} "
+
+[[blocks]]
+type = "prompt"
+alignment = "left"
+
+[[blocks.segments]]
+type = "executiontime"
+style = "diamond"
+trailing_diamond = ""
+background = "yellow"
+foreground = "black"
+template = "<transparent></> {{ .FormattedMs }} "
+
+# [[blocks]]
+# type = "prompt"
+# alignment = "left"
+# newline = true
+#
+# [[blocks.segments]]
+# type = "text"
+# style = "diamond"
+# leading_diamond = ""
+# trailing_diamond = ""
+# foreground = "black"
+# background = "blue"
+# template = " {{ if .Env.TMUX }}TMUX:{{ cmd \"tmux\" \"display-message\" \"-p\" \"#S\" }}{{ end }}{{ if .Env.ZELLIJ }}ZJ:{{ .Env.ZELLIJ_SESSION_NAME }}{{ end }} "
+
+[[blocks]]
+type = "prompt"
+alignment = "left"
+newline = true
+
+[[blocks.segments]]
+type = "text"
+style = "plain"
+foreground_templates = ["{{ if eq .Code 0 }}green{{ else }}red{{ end }}"]
+template = ""
+
