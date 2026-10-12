@@ -2,8 +2,7 @@ return {
   {
     'mfussenegger/nvim-dap',
     dependencies = {
-      'jay-babu/mason-nvim-dap.nvim',
-      'igorlfs/nvim-dap-view',
+      { 'igorlfs/nvim-dap-view', cmd = 'DapViewToggle' },
     },
     keys = {
       { '<leader>dd', function() require('dap').continue() end, desc = 'Start/continue debug session' },
@@ -14,6 +13,7 @@ return {
       { '<leader>dh', function() require('dap').step_out() end, desc = 'Step out of function' },
       { '<leader>dk', function() require('dap').up() end, desc = 'Go up in current stacktrace' },
       { '<leader>dj', function() require('dap').down() end, desc = 'Go down in current stacktrace' },
+      { '<leader>dv', '<cmd>DapViewToggle<cr>', desc = 'DAP View' },
     },
     opts_extend = { 'adapters', 'configurations' },
     config = function(_, opts)
