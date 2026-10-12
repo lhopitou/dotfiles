@@ -1,11 +1,10 @@
 return {
   {
     'mason-org/mason-lspconfig.nvim',
-    opts = {
-      automatic_enable = {
-        exclude = { 'stylua' },
-      },
-    },
+    opts = function(_, opts)
+      table.insert(opts.automatic_enable.exclude, 'stylua')
+      return opts
+    end,
   },
   {
     'mason-org/mason.nvim',

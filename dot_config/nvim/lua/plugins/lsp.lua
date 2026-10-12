@@ -11,7 +11,7 @@ return {
       'mason-org/mason.nvim',
       'SmiteshP/nvim-navic',
     },
-    opts = { automatic_enable = {} },
+    opts = { automatic_enable = { exclude = {} } },
   },
   {
     'mason-org/mason.nvim',

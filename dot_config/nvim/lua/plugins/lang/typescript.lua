@@ -2,7 +2,7 @@ return {
   {
     'mason-org/mason.nvim',
     opts = {
-      ensure_installed = { 'tsc', 'prettierd', 'prettier', 'tailwindcss-language-server' },
+      ensure_installed = { 'tsc', 'prettierd', 'prettier', 'tailwindcss-language-server', 'js-debug-adapter' },
     },
   },
   {
@@ -22,5 +22,18 @@ return {
     'windwp/nvim-ts-autotag',
     event = 'LazyFile',
     opts = {},
+  },
+  {
+    'mfussenegger/nvim-dap',
+    opts = {
+      adapters = {
+        ['pwa-node'] = {
+          type = 'server',
+          host = 'localhost',
+          port = '${port}',
+          executable = { command = vim.fn.exepath 'js-debug-adapter', args = { '${port}' } },
+        },
+      },
+    },
   },
 }
