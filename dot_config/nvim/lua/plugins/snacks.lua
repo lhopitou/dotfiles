@@ -50,5 +50,6 @@ return {
     notifier = { enabled = true },
     quickfile = { enabled = true },
     scope = { enabled = true },
+    toggle = { enabled = true },
   },
 }

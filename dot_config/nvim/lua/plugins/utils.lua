@@ -38,9 +38,7 @@ return {
     'wansmer/treesj',
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     keys = {
-      { '<leader>ts', '<cmd>TSJSplit<cr>', desc = 'Split tree' },
-      { '<leader>tj', '<cmd>TSJJoin<cr>', desc = 'Join tree' },
-      { '<leader>tt', '<cmd>TSJToggle<cr>', desc = 'Toggle tree' },
+      { '<leader>ts', '<cmd>TSJToggle<cr>', desc = 'Toggle block split' },
     },
     opts = {
       use_default_keymaps = false,
