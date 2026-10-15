@@ -3,8 +3,18 @@
         email = {{ .email }}
 [pull]
         ff = only
+[merge]
+        conflictStyle = zdiff3
 [rebase]
         autoStash = true
+[rerere]
+        enabled = true
+[commit]
+        verbose = true
+[diff]
+        algorithm = histogram
 
+{{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
 [credential]
         helper = /mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe
+{{- end -}}
