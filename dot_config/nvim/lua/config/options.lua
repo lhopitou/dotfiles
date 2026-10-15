@@ -167,7 +167,7 @@ vim.o.jumpoptions = 'view,clean'
 -- Set better diffopt defaults
 -- https://www.reddit.com/r/neovim/comments/1myfvla/comment/nad22ts/
 if vim.fn.has 'nvim-0.12' == 1 then
-  vim.o.diffopt = 'internal,filler,closeoff,algorithm:patience,indent-heuristic,inline:char,linematch:40'
+  vim.o.diffopt = 'internal,filler,closeoff,algorithm:histogram,indent-heuristic,inline:char,linematch:40'
 elseif vim.fn.has 'nvim-0.11' == 1 then
   vim.o.diffopt = 'internal,filler,closeoff,algorithm:patience,indent-heuristic,linematch:40'
 end
