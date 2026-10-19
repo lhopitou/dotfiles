@@ -8,6 +8,7 @@ return {
   keys = {
     {
       '<leader>lf',
+      mode = { 'n', 'x' },
       function()
         require('conform').format()
         vim.cmd 'update'
