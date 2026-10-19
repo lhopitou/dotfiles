@@ -15,4 +15,15 @@ export FZF_CTRL_T_OPTS="
   --cycle
 "
 
+# CTRL-R: sync in-memory history from $HISTFILE first, so commands typed in
+# other shells appear without needing a fresh prompt.
+fzf-history-widget-sync() {
+  builtin fc -R 2>/dev/null
+  builtin zle fzf-history-widget
+}
+zle -N fzf-history-widget-sync
+bindkey -M emacs '^R' fzf-history-widget-sync
+bindkey -M vicmd '^R' fzf-history-widget-sync
+bindkey -M viins '^R' fzf-history-widget-sync
+
 source <(fzf --zsh)

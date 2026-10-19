@@ -2,13 +2,14 @@ if [[ ! -z ${ZSH_PROFILING} ]]; then
   zmodload zsh/zprof
 fi
 
-zstyle ':completion:*' completer _complete _ignored _correct _approximate
+zstyle ':completion:*' completer _complete _ignored
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
-zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}'
-zstyle ':completion:*' max-errors 3
+zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]} l:|=* r:|=*'
 zstyle ':completion:*' menu select=1
 zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:descriptions' format ' %F{yellow}-- %d --%f'
 autoload -Uz compinit
 if [[ ! -d ${XDG_CACHE_HOME}/zsh ]]; then
   mkdir -p ${XDG_CACHE_HOME}/zsh
@@ -25,7 +26,7 @@ fi
 HISTFILE="$XDG_STATE_HOME"/zsh/history
 HISTSIZE=100000
 SAVEHIST=100000
-setopt append_history share_history hist_ignore_dups hist_ignore_space hist_expire_dups_first hist_find_no_dups inc_append_history
+setopt append_history share_history hist_ignore_dups hist_ignore_space hist_expire_dups_first hist_find_no_dups
 setopt autocd extendedglob numeric_glob_sort
 unsetopt beep nomatch
 bindkey -e
@@ -47,7 +48,9 @@ export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:${INFOPATH:-}"
 
 # Go
 export PATH=$PATH:/usr/local/go/bin
-export PATH="$PATH:$(go env GOPATH)/bin"
+export GOPATH="$XDG_DATA_HOME"/go
+export GOMODCACHE="$XDG_CACHE_HOME"/go/mod
+export PATH="$PATH:$GOPATH/bin"
 
 source "$ZDOTDIR/plugins.zsh"
 source "$ZDOTDIR/aliases.zsh"
