@@ -40,8 +40,16 @@ local cmd = {
   get_jdtls_jvm_args(),
 }
 
+local bundles = {
+  vim.fn.glob(vim.fn.expand '$MASON/share/java-debug-adapter/com.microsoft.java.debug.plugin-*.jar'),
+}
+vim.list_extend(bundles, require('spring_boot').java_extensions())
+
+local jdtls_java_home = vim.fn.has_key(vim.fn.environ(), 'SDKMAN_DIR') and vim.fn.expand '$SDKMAN_DIR/candidates/java/current' or vim.fn.expand '$JAVA_HOME'
+
 require('jdtls').start_or_attach {
   cmd = cmd,
+  cmd_env = { JAVA_HOME = jdtls_java_home },
   root_dir = root_dir,
   settings = {
     java = {
@@ -57,6 +65,26 @@ require('jdtls').start_or_attach {
           staticStarThreshold = 9999,
         },
       },
+      autobuild = { enabled = false },
     },
   },
+  init_options = {
+    bundles = bundles,
+  },
 }
+
+require('nvim-mybatis').setup()
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('Java_lsp_attach', { clear = true }),
+  callback = function()
+    vim.keymap.set('n', 'gd', function()
+      local utils = require 'nvim-mybatis.utils'
+      local bufnr = vim.api.nvim_get_current_buf()
+      if utils.is_mybatis_file(bufnr) then
+        return '<cmd>MybatisJump<cr>'
+      else
+        return '<cmd>FzfLua lsp_definitions     jump1=true ignore_current_line=true<cr>'
+      end
+    end, { expr = true, desc = 'Goto Definition' })
+  end,
+})
