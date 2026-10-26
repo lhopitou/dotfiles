@@ -1,7 +1,9 @@
-alias ls='eza --icons auto'
-alias lsa='eza -alh --icons --git --group-directories-first'
+alias ls='eza --icons --group-directories-first'
+alias la='eza -a --icons --group-directories-first'
+alias ll='eza -alh --icons --group-directories-first --git'
 compdef eza=ls
 
+alias md='mkdir -p'
 alias grep='grep --color=auto'
 alias cp='cp -iv'
 alias free='free -h'

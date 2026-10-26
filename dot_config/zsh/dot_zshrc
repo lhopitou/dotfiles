@@ -52,6 +52,9 @@ export GOPATH="$XDG_DATA_HOME"/go
 export GOMODCACHE="$XDG_CACHE_HOME"/go/mod
 export PATH="$PATH:$GOPATH/bin"
 
+export SDKMAN_DIR="$XDG_DATA_HOME/sdkman"
+source "$SDKMAN_DIR/bin/sdkman-init.sh"
+
 source "$ZDOTDIR/plugins.zsh"
 source "$ZDOTDIR/aliases.zsh"
 source "$ZDOTDIR/fzf.zsh"
