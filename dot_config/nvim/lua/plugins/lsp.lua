@@ -46,7 +46,10 @@ return {
     'SmiteshP/nvim-navic',
     lazy = true,
     opts = {
-      lsp = { auto_attach = true },
+      lsp = {
+        auto_attach = true,
+        preference = { 'vtsls', 'jdtls' },
+      },
     },
     config = function(_, opts)
       local navic = require 'nvim-navic'

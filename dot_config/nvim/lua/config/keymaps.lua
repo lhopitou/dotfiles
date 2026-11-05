@@ -46,6 +46,7 @@ map('n', '<space>y', '<cmd>%yank<CR>', { desc = 'Yank whole buffer' })
 -- Buffer management
 map('n', 'H', '<cmd>bp<cr>', { desc = 'Go to previous buffer' })
 map('n', 'L', '<cmd>bn<cr>', { desc = 'Go to next buffer' })
+map('n', '<leader>bb', '<cmd>b#<cr>', { desc = 'Go to alternate buffer' })
 map('n', '<leader>bd', function() require('snacks').bufdelete() end, { desc = 'Delete current buffer' })
 map('n', '<leader>ba', function() require('snacks').bufdelete.all() end, { desc = 'Delete all buffers' })
 map('n', '<leader>bi', function() require('snacks').bufdelete.invisible() end, { desc = 'Delete invisible buffers' })

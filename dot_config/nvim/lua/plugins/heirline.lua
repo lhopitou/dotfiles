@@ -432,7 +432,11 @@ local Opts = function()
     end,
     utils.surround({ DelimiterL.provider, DelimiterR.provider }, function(self) return self.color end, {
       hl = { fg = 'bg' },
-      provider = function(self) return ' ' .. (self.status_dict.head or '') end,
+      provider = function(self)
+        local head = ' ' .. (self.status_dict.head or '')
+        if string.len(head) > 25 then head = string.sub(head, 1, 25) .. '...' end
+        return head
+      end,
     }),
   }
 
@@ -472,7 +476,11 @@ local Opts = function()
       condition = function(self) return self.text ~= nil and self.text ~= '' end,
       hl = { fg = 'bg' },
       utils.surround({ DelimiterL.provider, DelimiterR.provider }, utils.get_highlight('IncSearch').bg, {
-        provider = function(self) return ' ' .. self.text end,
+        provider = function(self)
+          local text = self.text
+          if string.len(text) > 12 then text = string.sub(self.text, 1, 12) .. '...' end
+          return ' ' .. text
+        end,
       }),
     },
   }
